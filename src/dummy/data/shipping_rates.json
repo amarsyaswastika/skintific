@@ -1,0 +1,100 @@
+{
+  "shipping_rates": [
+    {
+      "id": 1,
+      "courier_id": 1,
+      "origin": "Jakarta",
+      "destination": "Bandung",
+      "service_type": "REG",
+      "price_per_kg": 8000
+    },
+    {
+      "id": 2,
+      "courier_id": 1,
+      "origin": "Jakarta",
+      "destination": "Surabaya",
+      "service_type": "REG",
+      "price_per_kg": 12000
+    },
+    {
+      "id": 3,
+      "courier_id": 1,
+      "origin": "Jakarta",
+      "destination": "Yogyakarta",
+      "service_type": "REG",
+      "price_per_kg": 11000
+    },
+    {
+      "id": 4,
+      "courier_id": 1,
+      "origin": "Jakarta",
+      "destination": "Bandung",
+      "service_type": "YES",
+      "price_per_kg": 15000
+    },
+    {
+      "id": 5,
+      "courier_id": 2,
+      "origin": "Jakarta",
+      "destination": "Bandung",
+      "service_type": "EZ",
+      "price_per_kg": 9000
+    },
+    {
+      "id": 6,
+      "courier_id": 2,
+      "origin": "Jakarta",
+      "destination": "Surabaya",
+      "service_type": "EZ",
+      "price_per_kg": 14000
+    },
+    {
+      "id": 7,
+      "courier_id": 2,
+      "origin": "Jakarta",
+      "destination": "Semarang",
+      "service_type": "EZ",
+      "price_per_kg": 11000
+    },
+    {
+      "id": 8,
+      "courier_id": 3,
+      "origin": "Jakarta",
+      "destination": "Bandung",
+      "service_type": "BEST",
+      "price_per_kg": 7500
+    },
+    {
+      "id": 9,
+      "courier_id": 3,
+      "origin": "Jakarta",
+      "destination": "Yogyakarta",
+      "service_type": "BEST",
+      "price_per_kg": 11000
+    },
+    {
+      "id": 10,
+      "courier_id": 3,
+      "origin": "Jakarta",
+      "destination": "Malang",
+      "service_type": "BEST",
+      "price_per_kg": 13000
+    },
+    {
+      "id": 11,
+      "courier_id": 4,
+      "origin": "Jakarta",
+      "destination": "Bandung",
+      "service_type": "POS",
+      "price_per_kg": 7000
+    },
+    {
+      "id": 12,
+      "courier_id": 4,
+      "origin": "Jakarta",
+      "destination": "Surabaya",
+      "service_type": "POS",
+      "price_per_kg": 10000
+    }
+  ]
+}
