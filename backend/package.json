@@ -6,7 +6,7 @@
     "start": "node index.js",
     "dev": "nodemon index.js",
     "test-db": "node test-connection.js",
-    "migrate": "node migrations/run-migration.js",
+    "migrate": "node migration/run-migration.js",
     "seed": "node seeders/seed.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
