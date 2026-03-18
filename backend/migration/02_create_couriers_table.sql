@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS couriers (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    vendor_name VARCHAR(100) NOT NULL,
+    phone VARCHAR(20),
+    logo_url VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
