@@ -15,4 +15,4 @@ FOREIGN KEY (shipment_id) REFERENCES shipments(id) ON DELETE CASCADE
 
 CREATE INDEX idx_tracking_shipment ON tracking_timeline(shipment_id);
 
-CREATE INDEX idx_tracking_updated ON tracking_timeline(updated\_at);
+CREATE INDEX idx_tracking_updated ON tracking_timeline(updated_at);
