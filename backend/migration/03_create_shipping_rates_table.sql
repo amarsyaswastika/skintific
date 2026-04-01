@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS shipping_rates (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    courier_id INT NOT NULL,
+    origin VARCHAR(100) NOT NULL,
+    destination VARCHAR(100) NOT NULL,
+    service_type VARCHAR(50) NOT NULL,
+    price_per_kg DECIMAL(10,2) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (courier_id) REFERENCES couriers(id) ON DELETE CASCADE);
