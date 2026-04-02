@@ -11,4 +11,3 @@ CREATE TABLE users (
     
     INDEX idx_users_email (email)  -- Index untuk pencarian email
 );
- 
