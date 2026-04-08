@@ -12,4 +12,3 @@ router.put("/:id", authMiddleware, isAdmin, RateController.update);
 router.delete("/:id", authMiddleware, isAdmin, RateController.destroy);
 
 module.exports = router;
-
