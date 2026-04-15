@@ -1,0 +1,59 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "Admin Utama",
+      "email": "admin@swifttrack.com",
+      "password": "$2a$10$k1yI5qJk1yI5qJk1yI5qJk1yI5qJk1yI5qJk1yI5qJk1yI5qJk1yI5",
+      "phone": "081234567890",
+      "address": "Jl. Sudirman No. 1, Jakarta Pusat",
+      "role": "admin",
+      "created_at": "2024-03-01T08:00:00Z"
+    },
+    {
+      "id": 2,
+      "name": "Budi Santoso",
+      "email": "budi@email.com",
+      "password": "$2a$10$l2mZ6rLl2mZ6rLl2mZ6rLl2mZ6rLl2mZ6rLl2mZ6rLl2mZ6rLl2mZ6",
+      "phone": "081298765432",
+      "address": "Jl. Merdeka No. 45, Bandung",
+      "role": "customer",
+      "created_at": "2024-03-01T09:15:00Z"
+    },
+    {
+      "id": 3,
+      "name": "Siti Rahayu",
+      "email": "siti@email.com",
+      "password": "$2a$10$l2mZ6rLl2mZ6rLl2mZ6rLl2mZ6rLl2mZ6rLl2mZ6rLl2mZ6rLl2mZ6",
+      "phone": "081311223344",
+      "address": "Jl. Diponegoro No. 78, Surabaya",
+      "role": "customer",
+      "created_at": "2024-03-02T10:30:00Z"
+    },
+    {
+      "id": 4,
+      "name": "Ahmad Hidayat",
+      "email": "ahmad@email.com",
+      "password": "$2a$10$l2mZ6rLl2mZ6rLl2mZ6rLl2mZ6rLl2mZ6rLl2mZ6rLl2mZ6rLl2mZ6",
+      "phone": "081422334455",
+      "address": "Jl. Gajah Mada No. 23, Medan",
+      "role": "customer",
+      "created_at": "2024-03-02T14:45:00Z"
+    },
+    {
+      "id": 5,
+      "name": "Kurir JNE",
+      "email": "kurir.jne@swifttrack.com",
+      "password": "$2a$10$m3pB8tKmn3pB8tKmn3pB8tKmn3pB8tKmn3pB8tKmn3pB8tKmn3pB8tKm",
+      "phone": "081533445566",
+      "address": "Jl. Asia Afrika No. 123, Jakarta",
+      "role": "courier",
+      "created_at": "2024-03-03T08:00:00Z"
+    }
+  ],
+  "password_hint": {
+    "admin": "admin123",
+    "customer": "customer123",
+    "courier": "kurir123"
+  }
+}
