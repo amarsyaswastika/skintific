@@ -1,0 +1,70 @@
+{
+  "shipments": [
+    {
+      "id": 1,
+      "user_id": 2,
+      "courier_id": 1,
+      "tracking_number": "JNE001234",
+      "sender_name": "PT Maju Jaya",
+      "receiver_name": "Michael Chen",
+      "status": "pending",
+      "total_cost": 24000,
+      "created_at": "2024-03-10T08:00:00Z"
+    },
+    {
+      "id": 2,
+      "user_id": 2,
+      "courier_id": 2,
+      "tracking_number": "JNT005678",
+      "sender_name": "CV Karya Mandiri",
+      "receiver_name": "Sarah Wijaya",
+      "status": "in_transit",
+      "total_cost": 16800,
+      "created_at": "2024-03-09T10:30:00Z"
+    },
+    {
+      "id": 3,
+      "user_id": 3,
+      "courier_id": 3,
+      "tracking_number": "SIC987654",
+      "sender_name": "Toko Berkah",
+      "receiver_name": "Budi Hartono",
+      "status": "delivered",
+      "total_cost": 44000,
+      "created_at": "2024-03-07T14:15:00Z"
+    },
+    {
+      "id": 4,
+      "user_id": 4,
+      "courier_id": 1,
+      "tracking_number": "JNE112233",
+      "sender_name": "UD Sumber Rejeki",
+      "receiver_name": "Dewi Lestari",
+      "status": "in_transit",
+      "total_cost": 12000,
+      "created_at": "2024-03-08T09:45:00Z"
+    },
+    {
+      "id": 5,
+      "user_id": 2,
+      "courier_id": 4,
+      "tracking_number": "POS445566",
+      "sender_name": "PT Indah Jaya",
+      "receiver_name": "Rudi Hermawan",
+      "status": "pending",
+      "total_cost": 7000,
+      "created_at": "2024-03-10T11:20:00Z"
+    },
+    {
+      "id": 6,
+      "user_id": 3,
+      "courier_id": 2,
+      "tracking_number": "JNT778899",
+      "sender_name": "CV Berkah Abadi",
+      "receiver_name": "Ani Susanti",
+      "status": "failed",
+      "total_cost": 9000,
+      "created_at": "2024-03-06T13:10:00Z"
+    }
+  ]
+}
