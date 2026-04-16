@@ -1,123 +1,97 @@
 const RateModel = require("../models/RateModel");
 
-// [SPRINT 5] Import validator & error handler
-const { validateId, validateRate, validateCalculatePrice } = require("../utils/validator");
-const { errorResponse, successResponse } = require("../utils/errorHandler");
-
 class RateController {
     // GET all rates
     index(req, res) {
         RateModel.getAll((err, results) => {
-            // [SPRINT 5] Error handler
-            if (err) return errorResponse(res, err, 500, "Gagal mengambil data tarif");
-            // [SPRINT 5] Success response
-            successResponse(res, results, "Berhasil ambil data tarif");
+            if (err) return res.status(500).json({ success: false, error: err.message });
+            res.json({ success: true, message: "Berhasil ambil data tarif", data: results });
         });
     }
 
     // GET rate by id
     show(req, res) {
-        // [SPRINT 5] Validasi ID
-        const idError = validateId(req.params.id);
-        if (idError) return errorResponse(res, idError, 400, idError);
-
         RateModel.getById(req.params.id, (err, results) => {
-            // [SPRINT 5] Error handler
-            if (err) return errorResponse(res, err, 500, "Gagal mengambil data tarif");
+            if (err) return res.status(500).json({ success: false, error: err.message });
             if (results.length === 0) {
-                // [SPRINT 5] Error handler data tidak ditemukan
-                return errorResponse(res, "Tarif tidak ditemukan", 404, "Tarif tidak ditemukan");
+                return res.status(404).json({ success: false, message: "Tarif tidak ditemukan" });
             }
-            // [SPRINT 5] Success response
-            successResponse(res, results[0], "Berhasil ambil data tarif");
+            res.json({ success: true, data: results[0] });
         });
     }
 
     // GET rates by route
     getByRoute(req, res) {
         const { origin, destination } = req.query;
-        // [SPRINT 5] Validasi parameter
         if (!origin || !destination) {
-            return errorResponse(res, "Origin dan destination wajib diisi", 400, "Parameter tidak lengkap");
+            return res.status(400).json({
+                success: false,
+                message: "Origin dan destination wajib diisi"
+            });
         }
         RateModel.getByRoute(origin, destination, (err, results) => {
-            // [SPRINT 5] Error handler
-            if (err) return errorResponse(res, err, 500, "Gagal mengambil data tarif");
-            // [SPRINT 5] Success response
-            successResponse(res, results, "Berhasil ambil data tarif");
+            if (err) return res.status(500).json({ success: false, error: err.message });
+            res.json({ success: true, data: results });
         });
     }
 
     // POST create rate
     store(req, res) {
-        // [SPRINT 5] Validasi input rate
-        const validationError = validateRate(req.body);
-        if (validationError) return errorResponse(res, validationError, 400, validationError);
+        const { courier_id, origin, destination, service_type, price_per_kg } = req.body;
+        if (!courier_id || !origin || !destination || !service_type || !price_per_kg) {
+            return res.status(400).json({
+                success: false,
+                message: "Semua field wajib diisi"
+            });
+        }
 
         RateModel.create(req.body, (err, result) => {
-            // [SPRINT 5] Error handler
-            if (err) return errorResponse(res, err, 500, "Gagal menambah tarif");
-            // [SPRINT 5] Success response
-            successResponse(res, { id: result.insertId }, "Tarif berhasil ditambahkan", 201);
+            if (err) return res.status(500).json({ success: false, error: err.message });
+            res.status(201).json({
+                success: true,
+                message: "Tarif berhasil ditambahkan",
+                id: result.insertId
+            });
         });
     }
 
     // PUT update rate
     update(req, res) {
-        // [SPRINT 5] Validasi ID
-        const idError = validateId(req.params.id);
-        if (idError) return errorResponse(res, idError, 400, idError);
-
-        // [SPRINT 5] Validasi input rate
-        const validationError = validateRate(req.body);
-        if (validationError) return errorResponse(res, validationError, 400, validationError);
-
-        RateModel.update(req.params.id, req.body, (err, result) => {
-            // [SPRINT 5] Error handler
-            if (err) return errorResponse(res, err, 500, "Gagal update tarif");
-            if (result.affectedRows === 0) {
-                // [SPRINT 5] Error handler data tidak ditemukan
-                return errorResponse(res, "Tarif tidak ditemukan", 404, "Tarif tidak ditemukan");
-            }
-            // [SPRINT 5] Success response
-            successResponse(res, null, "Tarif berhasil diupdate");
+        RateModel.update(req.params.id, req.body, (err) => {
+            if (err) return res.status(500).json({ success: false, error: err.message });
+            res.json({ success: true, message: "Tarif berhasil diupdate" });
         });
     }
-
     // DELETE rate
     destroy(req, res) {
-        // [SPRINT 5] Validasi ID
-        const idError = validateId(req.params.id);
-        if (idError) return errorResponse(res, idError, 400, idError);
-
-        RateModel.delete(req.params.id, (err, result) => {
-            // [SPRINT 5] Error handler
-            if (err) return errorResponse(res, err, 500, "Gagal hapus tarif");
-            if (result.affectedRows === 0) {
-                // [SPRINT 5] Error handler data tidak ditemukan
-                return errorResponse(res, "Tarif tidak ditemukan", 404, "Tarif tidak ditemukan");
-            }
-            // [SPRINT 5] Success response
-            successResponse(res, null, "Tarif berhasil dihapus");
+        RateModel.delete(req.params.id, (err) => {
+            if (err) return res.status(500).json({ success: false, error: err.message });
+            res.json({ success: true, message: "Tarif berhasil dihapus" });
         });
     }
 
     // POST calculate price
     calculate(req, res) {
-        // [SPRINT 5] Validasi input calculate
-        const validationError = validateCalculatePrice(req.body);
-        if (validationError) return errorResponse(res, validationError, 400, validationError);
-
         const { courier_id, origin, destination, weight } = req.body;
+        if (!courier_id || !origin || !destination || !weight) {
+            return res.status(400).json({
+                success: false,
+                message: "courier_id, origin, destination, weight wajib diisi"
+            });
+        }
+
         RateModel.calculatePrice(courier_id, origin, destination, weight, (err, totalPrice) => {
-            // [SPRINT 5] Error handler
-            if (err) return errorResponse(res, err, 500, "Gagal menghitung harga");
+            if (err) return res.status(500).json({ success: false, error: err.message });
             if (totalPrice === null) {
-                // [SPRINT 5] Error handler data tidak ditemukan
-                return errorResponse(res, "Tarif tidak ditemukan untuk rute tersebut", 404, "Tarif tidak tersedia");
+                return res.status(404).json({
+                    success: false,
+                    message: "Tarif tidak ditemukan untuk rute tersebut"
+                });
             }
-            // [SPRINT 5] Success response
-            successResponse(res, { courier_id, origin, destination, weight, total_price: totalPrice }, "Harga berhasil dihitung");
+            res.json({
+                success: true,
+                data: { courier_id, origin, destination, weight, total_price: totalPrice }
+            });
         });
     }
 }
