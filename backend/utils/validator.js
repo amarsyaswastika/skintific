@@ -5,6 +5,20 @@ function validateId(id) {
     }
     return null;
 }
+// ==================== VALIDASI COURIERS ====================
+function validateCourier(data) {
+    if (!data.vendor_name || data.vendor_name.trim() === "") {
+        return "Nama vendor harus diisi";
+    }
+    if (data.vendor_name && data.vendor_name.length < 2) {
+        return "Nama vendor minimal 2 karakter";
+    }
+    if (data.phone && !/^[0-9+\-\s()]+$/.test(data.phone)) {
+        return "Format nomor telepon tidak valid";
+    }
+    return null;
+}
+
 
 // ==================== VALIDASI SHIPPING RATES ====================
 function validateRate(data) {
@@ -81,6 +95,7 @@ function validateCalculatePrice(data) {
 
 module.exports = {
     validateId,
+     validateCourier,
     validateShipment,
     validateShipmentStatus,
     validateRate,
