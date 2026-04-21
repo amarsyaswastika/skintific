@@ -23,6 +23,7 @@ class AuthController {
           message: "Email sudah terdaftar",
         });
       }
+
       const hashedPassword = bcrypt.hashSync(password, 10);
 
       const userData = {
