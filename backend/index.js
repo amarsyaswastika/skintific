@@ -63,9 +63,14 @@ app.use((req, res) => {
 app.listen(PORT, () => {
     console.log(`✅ Server running on port ${PORT}`);
     // [SPRINT 4] Test koneksi database saat server start
+
+    console.log("🚀 Server running on port", PORT);
+console.log("📦 Database module loaded");
+
     db.connect((err) => {
         if (err) console.error("❌ Database connection failed:", err.message);
         else console.log("✅ Database connected");
     });
+
 });
 

@@ -6,12 +6,12 @@ function validateId(id) {
   return null;
 }
 
-// ==================== VALIDASI COURIERS ====================
+// ==================== VALIDASI COURIER ====================
 function validateCourier(data) {
   if (!data.vendor_name || data.vendor_name.trim() === "") {
     return "Nama vendor harus diisi";
   }
-  if (data.vendor_name && data.vendor_name.length < 2) {
+  if (data.vendor_name.length < 2) {
     return "Nama vendor minimal 2 karakter";
   }
   if (data.phone && !/^[0-9+\-\s()]+$/.test(data.phone)) {
@@ -20,158 +20,128 @@ function validateCourier(data) {
   return null;
 }
 
-// ==================== VALIDASI SHIPPING RATES ====================
+// ==================== VALIDASI RATE ====================
 function validateRate(data) {
   if (!data.courier_id || isNaN(data.courier_id)) {
-    return "ID kurir harus diisi dan berupa angka";
+    return "ID kurir harus berupa angka";
   }
-  if (!data.origin || data.origin.trim() === "") {
-    return "Kota asal harus diisi";
+  if (!data.origin) return "Kota asal harus diisi";
+  if (!data.destination) return "Kota tujuan harus diisi";
+  if (!data.service_type) return "Tipe layanan harus diisi";
+
+  const allowed = ["Reguler", "Express", "Same Day", "Cargo"];
+  if (!allowed.includes(data.service_type)) {
+    return "Tipe layanan tidak valid";
   }
-  if (!data.destination || data.destination.trim() === "") {
-    return "Kota tujuan harus diisi";
+
+  if (!data.price_per_kg || isNaN(data.price_per_kg) || data.price_per_kg <= 0) {
+    return "Harga harus angka positif";
   }
-  if (!data.service_type || data.service_type.trim() === "") {
-    return "Tipe layanan harus diisi";
-  }
-  const allowedServices = ["Reguler", "Express", "Same Day", "Cargo"];
-  if (!allowedServices.includes(data.service_type)) {
-    return "Tipe layanan harus: Reguler, Express, Same Day, Cargo";
-  }
-  if (
-    !data.price_per_kg ||
-    isNaN(data.price_per_kg) ||
-    data.price_per_kg <= 0
-  ) {
-    return "Harga per kg harus diisi dan berupa angka positif";
-  }
+
   return null;
 }
 
-// ==================== VALIDASI SHIPMENTS ====================
+// ==================== VALIDASI SHIPMENT ====================
 function validateShipment(data) {
   if (!data.courier_id || isNaN(data.courier_id)) {
-    return "ID kurir harus diisi dan berupa angka";
+    return "ID kurir harus angka";
   }
-  if (!data.tracking_number || data.tracking_number.trim() === "") {
-    return "Nomor tracking harus diisi";
-  }
-  if (data.tracking_number && data.tracking_number.length < 5) {
-    return "Nomor tracking minimal 5 karakter";
-  }
-  if (!data.sender_name || data.sender_name.trim() === "") {
-    return "Nama pengirim harus diisi";
-  }
-  if (!data.receiver_name || data.receiver_name.trim() === "") {
-    return "Nama penerima harus diisi";
-  }
+  if (!data.tracking_number) return "Tracking number wajib";
+  if (data.tracking_number.length < 5) return "Tracking minimal 5 karakter";
+  if (!data.sender_name) return "Nama pengirim wajib";
+  if (!data.receiver_name) return "Nama penerima wajib";
+
   return null;
 }
 
+// ==================== VALIDASI STATUS ====================
 function validateShipmentStatus(data) {
-  if (!data.status || data.status.trim() === "") {
-    return "Status harus diisi";
-  }
-  const allowedStatus = ["pending", "in-transit", "delivered", "cancelled"];
-  if (!allowedStatus.includes(data.status)) {
-    return "Status harus: pending, in-transit, delivered, cancelled";
-  }
+  const allowed = ["pending", "in-transit", "delivered", "cancelled"];
+  if (!data.status) return "Status wajib diisi";
+  if (!allowed.includes(data.status)) return "Status tidak valid";
   return null;
 }
 
 // ==================== VALIDASI TRACKING ====================
 function validateTracking(data) {
   if (!data.shipment_id || isNaN(data.shipment_id)) {
-    return "ID pengiriman harus diisi dan berupa angka";
+    return "Shipment ID tidak valid";
   }
-  if (!data.status || data.status.trim() === "") {
-    return "Status harus diisi";
-  }
-  const allowedStatus = [
-    "pending",
-    "processing",
-    "shipped",
-    "in-transit",
-    "delivered",
-    "cancelled",
-  ];
-  if (!allowedStatus.includes(data.status)) {
-    return "Status tidak valid";
-  }
-  if (data.location && data.location.length > 100) {
-    return "Lokasi maksimal 100 karakter";
-  }
-  if (data.description && data.description.length > 255) {
-    return "Deskripsi maksimal 255 karakter";
-  }
+  if (!data.status) return "Status wajib";
+
+  const allowed = ["pending", "processing", "shipped", "in-transit", "delivered", "cancelled"];
+  if (!allowed.includes(data.status)) return "Status tidak valid";
+
   return null;
 }
 
-// ==================== VALIDASI USERS & AUTH ====================
+// ==================== VALIDASI AUTH ====================
 function validateRegister(data) {
-  if (!data.name || data.name.trim() === "") {
-    return "Nama harus diisi";
-  }
-  if (data.name && data.name.length < 3) {
-    return "Nama minimal 3 karakter";
-  }
-  if (!data.email || data.email.trim() === "") {
-    return "Email harus diisi";
-  }
+  if (!data.name || data.name.length < 3) return "Nama minimal 3 karakter";
+  if (!data.email) return "Email wajib";
+
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(data.email)) {
-    return "Format email tidak valid";
-  }
-  if (!data.password) {
-    return "Password harus diisi";
-  }
-  if (data.password.length < 8) {
+  if (!emailRegex.test(data.email)) return "Email tidak valid";
+
+  if (!data.password || data.password.length < 8) {
     return "Password minimal 8 karakter";
   }
+
   return null;
 }
 
 function validateLogin(data) {
-  if (!data.email || data.email.trim() === "") {
-    return "Email harus diisi";
-  }
-  if (!data.password) {
-    return "Password harus diisi";
-  }
+  if (!data.email) return "Email wajib";
+  if (!data.password) return "Password wajib";
   return null;
 }
 
-function validateUpdateProfile(data) {
-  if (data.name && data.name.length < 3) {
-    return "Nama minimal 3 karakter";
-  }
-  if (data.email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(data.email)) {
-      return "Format email tidak valid";
-    }
-  }
-  return null;
-}
-
-// ==================== VALIDASI CALCULATE PRICE ====================
+// ==================== VALIDASI CALCULATE ====================
 function validateCalculatePrice(data) {
   if (!data.courier_id || isNaN(data.courier_id)) {
-    return "ID kurir harus diisi dan berupa angka";
+    return "Courier ID tidak valid";
   }
-  if (!data.origin || data.origin.trim() === "") {
-    return "Kota asal harus diisi";
-  }
-  if (!data.destination || data.destination.trim() === "") {
-    return "Kota tujuan harus diisi";
-  }
+  if (!data.origin) return "Origin wajib";
+  if (!data.destination) return "Destination wajib";
   if (!data.weight || isNaN(data.weight) || data.weight <= 0) {
-    return "Berat harus diisi dan berupa angka positif";
+    return "Weight harus angka positif";
   }
+
   return null;
 }
 
-// EKSPOR SEMUA FUNGSI (PENTING!)
+// ==================== VALIDASI LOGO ====================
+function validateLogo(file) {
+  if (!file) return null;
+
+  const allowedTypes = [
+    "image/jpeg",
+    "image/jpg",
+    "image/png",
+    "image/gif",
+    "image/webp",
+    "image/svg+xml"
+  ];
+
+  if (!allowedTypes.includes(file.mimetype)) {
+    return "Format logo harus JPG, PNG, GIF, WEBP, atau SVG";
+  }
+
+  const maxSize = 2 * 1024 * 1024;
+  if (file.size > maxSize) {
+    return "Ukuran logo maksimal 2MB";
+  }
+
+  return null;
+}
+
+// ==================== VALIDASI LOGO UPDATE ====================
+function validateLogoUpdate(file) {
+  if (!file) return null;
+  return validateLogo(file);
+}
+
+// ==================== EXPORT ====================
 module.exports = {
   validateId,
   validateCourier,
@@ -181,6 +151,7 @@ module.exports = {
   validateTracking,
   validateRegister,
   validateLogin,
-  validateUpdateProfile,
   validateCalculatePrice,
+  validateLogo,
+  validateLogoUpdate
 };

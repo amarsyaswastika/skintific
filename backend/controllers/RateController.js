@@ -1,97 +1,105 @@
 const RateModel = require("../models/RateModel");
+const { validateId, validateRate, validateCalculatePrice } = require("../utils/validator");
+const { errorResponse, successResponse } = require("../utils/errorHandler");
 
 class RateController {
+
     // GET all rates
     index(req, res) {
         RateModel.getAll((err, results) => {
-            if (err) return res.status(500).json({ success: false, error: err.message });
-            res.json({ success: true, message: "Berhasil ambil data tarif", data: results });
+            if (err) return errorResponse(res, err, 500, "Gagal mengambil data tarif");
+            return successResponse(res, results, "Berhasil ambil data tarif");
         });
     }
 
     // GET rate by id
     show(req, res) {
+        const idError = validateId(req.params.id);
+        if (idError) return errorResponse(res, idError, 400, idError);
+
         RateModel.getById(req.params.id, (err, results) => {
-            if (err) return res.status(500).json({ success: false, error: err.message });
+            if (err) return errorResponse(res, err, 500, "Gagal mengambil data tarif");
             if (results.length === 0) {
-                return res.status(404).json({ success: false, message: "Tarif tidak ditemukan" });
+                return errorResponse(res, "Tarif tidak ditemukan", 404);
             }
-            res.json({ success: true, data: results[0] });
+            return successResponse(res, results[0], "Berhasil ambil data tarif");
         });
     }
 
-    // GET rates by route
+    // GET by route
     getByRoute(req, res) {
         const { origin, destination } = req.query;
+
         if (!origin || !destination) {
-            return res.status(400).json({
-                success: false,
-                message: "Origin dan destination wajib diisi"
-            });
+            return errorResponse(res, "Origin dan destination wajib diisi", 400);
         }
+
         RateModel.getByRoute(origin, destination, (err, results) => {
-            if (err) return res.status(500).json({ success: false, error: err.message });
-            res.json({ success: true, data: results });
+            if (err) return errorResponse(res, err, 500, "Gagal mengambil data tarif");
+            return successResponse(res, results, "Berhasil ambil data tarif");
         });
     }
 
-    // POST create rate
+    // POST create
     store(req, res) {
-        const { courier_id, origin, destination, service_type, price_per_kg } = req.body;
-        if (!courier_id || !origin || !destination || !service_type || !price_per_kg) {
-            return res.status(400).json({
-                success: false,
-                message: "Semua field wajib diisi"
-            });
-        }
+        const validationError = validateRate(req.body);
+        if (validationError) return errorResponse(res, validationError, 400);
 
         RateModel.create(req.body, (err, result) => {
-            if (err) return res.status(500).json({ success: false, error: err.message });
-            res.status(201).json({
-                success: true,
-                message: "Tarif berhasil ditambahkan",
-                id: result.insertId
-            });
+            if (err) return errorResponse(res, err, 500, "Gagal menambah tarif");
+            return successResponse(res, { id: result.insertId }, "Tarif berhasil ditambahkan", 201);
         });
     }
 
-    // PUT update rate
+    // PUT update
     update(req, res) {
-        RateModel.update(req.params.id, req.body, (err) => {
-            if (err) return res.status(500).json({ success: false, error: err.message });
-            res.json({ success: true, message: "Tarif berhasil diupdate" });
-        });
-    }
-    // DELETE rate
-    destroy(req, res) {
-        RateModel.delete(req.params.id, (err) => {
-            if (err) return res.status(500).json({ success: false, error: err.message });
-            res.json({ success: true, message: "Tarif berhasil dihapus" });
+        const idError = validateId(req.params.id);
+        if (idError) return errorResponse(res, idError, 400);
+
+        const validationError = validateRate(req.body);
+        if (validationError) return errorResponse(res, validationError, 400);
+
+        RateModel.update(req.params.id, req.body, (err, result) => {
+            if (err) return errorResponse(res, err, 500, "Gagal update tarif");
+            if (result.affectedRows === 0) {
+                return errorResponse(res, "Tarif tidak ditemukan", 404);
+            }
+            return successResponse(res, null, "Tarif berhasil diupdate");
         });
     }
 
-    // POST calculate price
+    // DELETE
+    destroy(req, res) {
+        const idError = validateId(req.params.id);
+        if (idError) return errorResponse(res, idError, 400);
+
+        RateModel.delete(req.params.id, (err, result) => {
+            if (err) return errorResponse(res, err, 500, "Gagal hapus tarif");
+            if (result.affectedRows === 0) {
+                return errorResponse(res, "Tarif tidak ditemukan", 404);
+            }
+            return successResponse(res, null, "Tarif berhasil dihapus");
+        });
+    }
+
+    // POST calculate
     calculate(req, res) {
+        const validationError = validateCalculatePrice(req.body);
+        if (validationError) return errorResponse(res, validationError, 400);
+
         const { courier_id, origin, destination, weight } = req.body;
-        if (!courier_id || !origin || !destination || !weight) {
-            return res.status(400).json({
-                success: false,
-                message: "courier_id, origin, destination, weight wajib diisi"
-            });
-        }
 
         RateModel.calculatePrice(courier_id, origin, destination, weight, (err, totalPrice) => {
-            if (err) return res.status(500).json({ success: false, error: err.message });
+            if (err) return errorResponse(res, err, 500, "Gagal menghitung harga");
             if (totalPrice === null) {
-                return res.status(404).json({
-                    success: false,
-                    message: "Tarif tidak ditemukan untuk rute tersebut"
-                });
+                return errorResponse(res, "Tarif tidak ditemukan untuk rute tersebut", 404);
             }
-            res.json({
-                success: true,
-                data: { courier_id, origin, destination, weight, total_price: totalPrice }
-            });
+
+            return successResponse(
+                res,
+                { courier_id, origin, destination, weight, total_price: totalPrice },
+                "Harga berhasil dihitung"
+            );
         });
     }
 }
