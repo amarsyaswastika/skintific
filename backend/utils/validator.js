@@ -110,47 +110,35 @@ function validateCalculatePrice(data) {
   return null;
 }
 
-// ==================== VALIDASI LOGO COURIER (SPRINT 7 - FILE UPLOAD) ====================//
-
+// ==================== VALIDASI LOGO ====================
 function validateLogo(file) {
-    // Logo bersifat optional (boleh tidak upload)
-    if (!file) {
-        return null;
-    }
-    
-    // Validasi tipe file (hanya gambar)
-    const allowedTypes = [
-        "image/jpeg", 
-        "image/jpg", 
-        "image/png", 
-        "image/gif", 
-        "image/webp", 
-        "image/svg+xml"
-    ];
-    
-    if (!allowedTypes.includes(file.mimetype)) {
-        return "Format logo harus JPG, PNG, GIF, WEBP, atau SVG";
-    }
-    
-    // Validasi ukuran file (maksimal 2MB = 2 * 1024 * 1024 bytes)
-    const maxSize = 2 * 1024 * 1024; // 2MB
-    if (file.size > maxSize) {
-        return "Ukuran logo maksimal 2MB";
-    }
-    
-    return null;
+  if (!file) return null;
+
+  const allowedTypes = [
+    "image/jpeg",
+    "image/jpg",
+    "image/png",
+    "image/gif",
+    "image/webp",
+    "image/svg+xml"
+  ];
+
+  if (!allowedTypes.includes(file.mimetype)) {
+    return "Format logo harus JPG, PNG, GIF, WEBP, atau SVG";
+  }
+
+  const maxSize = 2 * 1024 * 1024;
+  if (file.size > maxSize) {
+    return "Ukuran logo maksimal 2MB";
+  }
+
+  return null;
 }
 
-// Update logo
- */
+// ==================== VALIDASI LOGO UPDATE ====================
 function validateLogoUpdate(file) {
-    // Update boleh tanpa upload file baru
-    if (!file) {
-        return null;
-    }
-    
-    // Jika ada file, validasi sama seperti validateLogo
-    return validateLogo(file);
+  if (!file) return null;
+  return validateLogo(file);
 }
 
 // ==================== EXPORT ====================
@@ -162,8 +150,8 @@ module.exports = {
   validateShipmentStatus,
   validateTracking,
   validateRegister,
-  validateLogo,
-  validateLogoUpdate,
   validateLogin,
   validateCalculatePrice,
+  validateLogo,
+  validateLogoUpdate
 };
