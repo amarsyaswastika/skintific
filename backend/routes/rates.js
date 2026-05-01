@@ -1,14 +1,18 @@
 const express = require("express");
 const router = express.Router();
 const RateController = require("../controllers/RateController");
-const { authMiddleware, isAdmin, isStaff } = require("../middleware/auth");
+const { authMiddleware } = require("../middleware/auth");
+const authorize = require("../middleware/authorize");
 
-router.get("/", authMiddleware, RateController.getByRoute);
-router.get("/all", authMiddleware, isAdmin, RateController.index);
-router.get("/:id", authMiddleware, RateController.show);
-router.post("/", authMiddleware, isAdmin, RateController.store);
-router.post("/calculate", authMiddleware, RateController.calculate);
-router.put("/:id", authMiddleware, isAdmin, RateController.update);
-router.delete("/:id", authMiddleware, isAdmin, RateController.destroy);
+// HANYA ADMIN yang bisa kelola tarif
+router.use(authMiddleware);
+router.use(authorize("admin")); // ← staff, customer, courier TIDAK BISA
+
+router.get("/", RateController.index);
+router.get("/:id", RateController.show);
+router.post("/", RateController.store);
+router.put("/:id", RateController.update);
+router.delete("/:id", RateController.destroy);
+router.post("/calculate", RateController.calculate);
 
 module.exports = router;

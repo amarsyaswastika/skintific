@@ -48,19 +48,19 @@ class ShipmentModel {
   // Create new shipment
   static create(data, callback) {
     const sql = `INSERT INTO shipments (user_id, courier_id, tracking_number, sender_name, 
-                 receiver_name, status, total_cost) 
-                 VALUES (?, ?, ?, ?, ?, ?, ?)`;
+                receiver_name, status, total_cost) 
+                VALUES (?, ?, ?, ?, ?, ?, ?)`;  // ← PERBAIKI: ALUES → VALUES
     db.query(sql, [data.user_id || null, data.courier_id, data.tracking_number, 
-                   data.sender_name, data.receiver_name, data.status || "pending", 
-                   data.total_cost || null], callback);
+                  data.sender_name, data.receiver_name, data.status || "pending", 
+                  data.total_cost || null], callback);
   }
 
   // Update shipment
   static update(id, data, callback) {
     const sql = `UPDATE shipments SET courier_id = ?, sender_name = ?, receiver_name = ?, 
-                 status = ?, total_cost = ? WHERE id = ?`;
+                status = ?, total_cost = ? WHERE id = ?`;
     db.query(sql, [data.courier_id, data.sender_name, data.receiver_name, 
-                   data.status, data.total_cost, id], callback);
+                  data.status, data.total_cost, id], callback);
   }
 
   // Update status only
@@ -71,6 +71,19 @@ class ShipmentModel {
   // Delete shipment
   static delete(id, callback) {
     db.query("DELETE FROM shipments WHERE id = ?", [id], callback);
+  }
+
+  // Get dashboard stats (PINDAHKAN KE DALAM CLASS)
+  static getStats(callback) {
+    const sql = `
+      SELECT 
+        COUNT(*) as total_paket,
+        SUM(CASE WHEN status = 'in-transit' THEN 1 ELSE 0 END) as in_transit,
+        SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending,
+        SUM(CASE WHEN status = 'delivered' THEN 1 ELSE 0 END) as delivered
+      FROM shipments
+    `;
+    db.query(sql, callback);
   }
 }
 

@@ -1,39 +1,18 @@
 const express = require("express");
 const router = express.Router();
 const CourierController = require("../controllers/CourierController");
-const { authMiddleware, isAdmin, isStaff, isCourier } = require("../middleware/auth");
+const { authMiddleware } = require("../middleware/auth");
+const authorize = require("../middleware/authorize");
 const upload = require("../middleware/upload");
 
-// GET all
-router.get("/", authMiddleware, CourierController.index);
+// HANYA ADMIN yang bisa kelola kurir
+router.use(authMiddleware);
+router.use(authorize("admin")); // ← staff, customer, courier TIDAK BISA
 
-// GET by id
-router.get("/:id", authMiddleware, CourierController.show);
-
-// POST create courier (dengan upload logo)
-router.post(
-  "/",
-  authMiddleware,
-  isAdmin, // biasanya create hanya admin
-  upload.single("logo"),
-  CourierController.store
-);
-
-// PUT update courier (optional upload logo)
-router.put(
-  "/:id",
-  authMiddleware,
-  isAdmin,
-  upload.single("logo"),
-  CourierController.update
-);
-
-// DELETE courier
-router.delete(
-  "/:id",
-  authMiddleware,
-  isAdmin,
-  CourierController.destroy
-);
+router.get("/", CourierController.index);
+router.get("/:id", CourierController.show);
+router.post("/", upload.single("logo"), CourierController.store);
+router.put("/:id", upload.single("logo"), CourierController.update);
+router.delete("/:id", CourierController.destroy);
 
 module.exports = router;
