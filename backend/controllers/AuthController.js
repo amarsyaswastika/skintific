@@ -141,59 +141,6 @@ class AuthController {
       res.json({ success: true, data: results });
     });
   }
-  // Change password
-  changePassword(req, res) {
-    const { oldPassword, newPassword } = req.body;
-    const userId = req.user.userId;
-
-    if (!oldPassword || !newPassword) {
-      return res.status(400).json({
-        success: false,
-        message: "Password lama dan baru wajib diisi",
-      });
-    }
-
-    if (newPassword.length < 6) {
-      return res.status(400).json({
-        success: false,
-        message: "Password baru minimal 6 karakter",
-      });
-    }
-
-    // Ambil user dari database
-    UserModel.getById(userId, (err, results) => {
-      if (err) {
-        return res.status(500).json({ success: false, error: err.message });
-      }
-      if (results.length === 0) {
-        return res
-          .status(404)
-          .json({ success: false, message: "User tidak ditemukan" });
-      }
-
-      const user = results[0];
-      const isValid = bcrypt.compareSync(oldPassword, user.password);
-
-      if (!isValid) {
-        return res.status(401).json({
-          success: false,
-          message: "Password lama salah",
-        });
-      }
-
-      const hashedPassword = bcrypt.hashSync(newPassword, 10);
-
-      UserModel.updatePassword(userId, hashedPassword, (err) => {
-        if (err) {
-          return res.status(500).json({ success: false, error: err.message });
-        }
-        res.json({
-          success: true,
-          message: "Password berhasil diubah",
-        });
-      });
-    });
-  }
 }
 
 module.exports = new AuthController();
