@@ -1,3 +1,15 @@
+node_modules/
+.env
+src/generated/node_modules/
+backend/node_modules/
+frontend/node_modules/
+.env
+.env.local
+*.log
+.DS_Store
+dist/
+build/
+
 # Environment variables
 .env
 .env.local
@@ -11,3 +23,4 @@ logs/
 
 # OS
 .DS_Store
+

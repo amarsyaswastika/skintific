@@ -9,6 +9,7 @@ router.use(authMiddleware);
 router.use(authorize("admin", "staff")); // ← customer & courier TIDAK BISA akses
 
 router.get("/dashboard/stats", ShipmentController.getStats);
+router.get("/monthly-stats", ShipmentController.getMonthlyStats);
 router.get("/", ShipmentController.index);
 router.get("/:id", ShipmentController.show);
 router.post("/", ShipmentController.store);

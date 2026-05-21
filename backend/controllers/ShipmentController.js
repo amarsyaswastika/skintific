@@ -22,6 +22,31 @@ class ShipmentController {
     });
   }
 
+<<<<<<< HEAD
+  // GET monthly shipment statistics for chart
+  getMonthlyStats(req, res) {
+    ShipmentModel.getMonthlyStats((err, results) => {
+      if (err) return errorResponse(res, err, 500, "Gagal mengambil statistik bulanan");
+      
+      // Inisialisasi array 12 bulan (Jan-Dec) dengan nilai 0
+      const monthlyShipments = Array(12).fill(0);
+      const monthlyDeliveries = Array(12).fill(0);
+      
+      results.forEach(row => {
+        const monthIndex = row.month - 1; // Jan=0, Feb=1, dst
+        monthlyShipments[monthIndex] = row.total;
+        monthlyDeliveries[monthIndex] = row.delivered;
+      });
+      
+      successResponse(res, {
+        shipments: monthlyShipments,
+        deliveries: monthlyDeliveries
+      }, "Berhasil ambil statistik bulanan");
+    });
+  }
+
+=======
+>>>>>>> main
   // GET shipment by id
   show(req, res) {
     const idError = validateId(req.params.id);
