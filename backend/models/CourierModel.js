@@ -20,18 +20,14 @@ class CourierModel {
       INSERT INTO couriers (vendor_name, service_name, price_per_kg, estimation_day, phone, logo_url) 
       VALUES (?, ?, ?, ?, ?, ?)
     `;
-    db.query(
-      sql,
-      [
-        data.vendor_name,
-        data.service_name,
-        data.price_per_kg,
-        data.estimation_day || null,
-        data.phone || null,
-        data.logo_url || null, // ← TAMBAHKAN logo_url
-      ],
-      callback,
-    );
+    db.query(sql, [
+      data.vendor_name,
+      data.service_name,
+      data.price_per_kg,
+      data.estimation_day || null,
+      data.phone || null,
+      data.logo_url || null  // ← TAMBAHKAN logo_url
+    ], callback);
   }
 
   // Update courier (TAMBAHKAN logo_url)
@@ -43,37 +39,29 @@ class CourierModel {
         SET vendor_name = ?, service_name = ?, price_per_kg = ?, estimation_day = ?, phone = ?, logo_url = ?
         WHERE id = ?
       `;
-      db.query(
-        sql,
-        [
-          data.vendor_name,
-          data.service_name,
-          data.price_per_kg,
-          data.estimation_day || null,
-          data.phone || null,
-          data.logo_url,
-          id,
-        ],
-        callback,
-      );
+      db.query(sql, [
+        data.vendor_name,
+        data.service_name,
+        data.price_per_kg,
+        data.estimation_day || null,
+        data.phone || null,
+        data.logo_url,
+        id
+      ], callback);
     } else {
       const sql = `
         UPDATE couriers 
         SET vendor_name = ?, service_name = ?, price_per_kg = ?, estimation_day = ?, phone = ?
         WHERE id = ?
       `;
-      db.query(
-        sql,
-        [
-          data.vendor_name,
-          data.service_name,
-          data.price_per_kg,
-          data.estimation_day || null,
-          data.phone || null,
-          id,
-        ],
-        callback,
-      );
+      db.query(sql, [
+        data.vendor_name,
+        data.service_name,
+        data.price_per_kg,
+        data.estimation_day || null,
+        data.phone || null,
+        id
+      ], callback);
     }
   }
 
@@ -85,3 +73,4 @@ class CourierModel {
 }
 
 module.exports = CourierModel;
+

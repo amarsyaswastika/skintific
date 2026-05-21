@@ -22,7 +22,6 @@ class ShipmentController {
     });
   }
 
-<<<<<<< HEAD
   // GET monthly shipment statistics for chart
   getMonthlyStats(req, res) {
     ShipmentModel.getMonthlyStats((err, results) => {
@@ -45,8 +44,6 @@ class ShipmentController {
     });
   }
 
-=======
->>>>>>> main
   // GET shipment by id
   show(req, res) {
     const idError = validateId(req.params.id);
