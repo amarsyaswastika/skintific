@@ -49,7 +49,11 @@ class ShipmentModel {
   static create(data, callback) {
     const sql = `INSERT INTO shipments (user_id, courier_id, tracking_number, sender_name, 
                 receiver_name, status, total_cost) 
+<<<<<<< HEAD
                 VALUES (?, ?, ?, ?, ?, ?, ?)`;
+=======
+                VALUES (?, ?, ?, ?, ?, ?, ?)`;  // ← PERBAIKI: ALUES → VALUES
+>>>>>>> main
     db.query(sql, [data.user_id || null, data.courier_id, data.tracking_number, 
                   data.sender_name, data.receiver_name, data.status || "pending", 
                   data.total_cost || null], callback);
@@ -73,7 +77,11 @@ class ShipmentModel {
     db.query("DELETE FROM shipments WHERE id = ?", [id], callback);
   }
 
+<<<<<<< HEAD
   // Get dashboard stats
+=======
+  // Get dashboard stats (PINDAHKAN KE DALAM CLASS)
+>>>>>>> main
   static getStats(callback) {
     const sql = `
       SELECT 
@@ -85,6 +93,7 @@ class ShipmentModel {
     `;
     db.query(sql, callback);
   }
+<<<<<<< HEAD
   // Get monthly shipment statistics for chart
   static getMonthlyStats(callback) {
     const sql = `
@@ -99,6 +108,8 @@ class ShipmentModel {
     `;
     db.query(sql, callback);
   }
+=======
+>>>>>>> main
 }
 
 module.exports = ShipmentModel;

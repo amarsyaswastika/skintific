@@ -54,6 +54,8 @@ class CourierController {
 
   // POST create courier
   store(req, res) {
+    console.log("Request body:", req.body); // Debug
+    
     const validationError = validateCourier(req.body);
     if (validationError) {
       return errorResponse(res, validationError, 400, validationError);
@@ -72,6 +74,7 @@ class CourierController {
 
     CourierModel.create(courierData, (err, result) => {
       if (err) {
+        console.log("Error:", err); // Debug
         if (err.code === "ER_DUP_ENTRY") {
           return errorResponse(res, "Kurir sudah terdaftar", 409, "Data sudah ada");
         }

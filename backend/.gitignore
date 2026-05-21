@@ -9,3 +9,18 @@ frontend/node_modules/
 .DS_Store
 dist/
 build/
+
+# Environment variables
+.env
+.env.local
+
+# Dependencies
+node_modules/
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+

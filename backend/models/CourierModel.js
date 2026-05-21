@@ -9,41 +9,33 @@ class CourierModel {
 
   // Get courier by id
   static getById(id, callback) {
-    // PERBAIKAN: pastikan nama kolomnya `id` bukan `courier_id`
     const sql = "SELECT * FROM couriers WHERE id = ?";
     db.query(sql, [id], callback);
   }
 
-  // Create new courier (TAMBAHKAN logo_url)
+  // Create new courier (hanya vendor_name, phone, logo_url)
   static create(data, callback) {
     const sql = `
-      INSERT INTO couriers (vendor_name, service_name, price_per_kg, estimation_day, phone, logo_url) 
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO couriers (vendor_name, phone, logo_url) 
+      VALUES (?, ?, ?)
     `;
     db.query(sql, [
       data.vendor_name,
-      data.service_name,
-      data.price_per_kg,
-      data.estimation_day || null,
       data.phone || null,
-      data.logo_url || null  // ← TAMBAHKAN logo_url
+      data.logo_url || null
     ], callback);
   }
 
-  // Update courier (TAMBAHKAN logo_url)
+  // Update courier (hanya vendor_name, phone, logo_url)
   static update(id, data, callback) {
-    // Cek apakah ada logo_url yang dikirim
     if (data.logo_url) {
       const sql = `
         UPDATE couriers 
-        SET vendor_name = ?, service_name = ?, price_per_kg = ?, estimation_day = ?, phone = ?, logo_url = ?
+        SET vendor_name = ?, phone = ?, logo_url = ?
         WHERE id = ?
       `;
       db.query(sql, [
         data.vendor_name,
-        data.service_name,
-        data.price_per_kg,
-        data.estimation_day || null,
         data.phone || null,
         data.logo_url,
         id
@@ -51,14 +43,11 @@ class CourierModel {
     } else {
       const sql = `
         UPDATE couriers 
-        SET vendor_name = ?, service_name = ?, price_per_kg = ?, estimation_day = ?, phone = ?
+        SET vendor_name = ?, phone = ?
         WHERE id = ?
       `;
       db.query(sql, [
         data.vendor_name,
-        data.service_name,
-        data.price_per_kg,
-        data.estimation_day || null,
         data.phone || null,
         id
       ], callback);
@@ -73,4 +62,3 @@ class CourierModel {
 }
 
 module.exports = CourierModel;
-

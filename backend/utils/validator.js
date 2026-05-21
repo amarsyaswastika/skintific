@@ -6,17 +6,26 @@ function validateId(id) {
   return null;
 }
 
-// ==================== VALIDASI COURIER ====================
+// ==================== VALIDASI COURIER (HANYA vendor_name & phone) ====================
 function validateCourier(data) {
+  // Cek data undefined/null
+  if (!data) {
+    return "Data tidak lengkap";
+  }
+  
+  // Validasi vendor_name (wajib)
   if (!data.vendor_name || data.vendor_name.trim() === "") {
     return "Nama vendor harus diisi";
   }
   if (data.vendor_name.length < 2) {
     return "Nama vendor minimal 2 karakter";
   }
+  
+  // Validasi phone (opsional)
   if (data.phone && !/^[0-9+\-\s()]+$/.test(data.phone)) {
     return "Format nomor telepon tidak valid";
   }
+  
   return null;
 }
 
@@ -77,22 +86,42 @@ function validateTracking(data) {
 
 // ==================== VALIDASI AUTH ====================
 function validateRegister(data) {
-  if (!data.name || data.name.length < 3) return "Nama minimal 3 karakter";
-  if (!data.email) return "Email wajib";
-
+  if (!data) {
+    return "Data tidak lengkap";
+  }
+  
+  if (!data.name || data.name.trim() === "") {
+    return "Nama harus diisi";
+  }
+  if (data.name.length < 3) {
+    return "Nama minimal 3 karakter";
+  }
+  
+  if (!data.email || data.email.trim() === "") {
+    return "Email harus diisi";
+  }
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(data.email)) return "Email tidak valid";
-
-  if (!data.password || data.password.length < 8) {
-    return "Password minimal 8 karakter";
+  if (!emailRegex.test(data.email)) {
+    return "Format email tidak valid";
+  }
+  
+  if (!data.password) {
+    return "Password harus diisi";
+  }
+  if (data.password.length < 6) {
+    return "Password minimal 6 karakter";
   }
 
   return null;
 }
 
 function validateLogin(data) {
-  if (!data.email) return "Email wajib";
-  if (!data.password) return "Password wajib";
+  if (!data || !data.email || data.email.trim() === "") {
+    return "Email harus diisi";
+  }
+  if (!data.password) {
+    return "Password harus diisi";
+  }
   return null;
 }
 
@@ -127,7 +156,7 @@ function validateLogo(file) {
     return "Format logo harus JPG, PNG, GIF, WEBP, atau SVG";
   }
 
-  const maxSize = 2 * 1024 * 1024;
+  const maxSize = 2 * 1024 * 1024; // 2MB
   if (file.size > maxSize) {
     return "Ukuran logo maksimal 2MB";
   }
