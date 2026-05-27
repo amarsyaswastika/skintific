@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Layout/Sidebar";
 import Header from "../components/Layout/Header";
 import Footer from "../components/Layout/Footer";
+import { formatCurrency } from "../utils/format";
 
 function Rates() {
     const [rates, setRates] = useState([]);
@@ -186,7 +187,7 @@ function Rates() {
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 text-sm font-medium text-gray-800">
-                                                Rp {parseFloat(rate.price_per_kg).toLocaleString()}
+                                                {formatCurrency(rate.price_per_kg)}
                                             </td>
                                             {isAdmin && (
                                                 <td className="px-6 py-4">
