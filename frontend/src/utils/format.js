@@ -153,12 +153,9 @@ export const getStatusBadgeClass = (status) => {
  */
 export const getStatusText = (status) => {
   const statusMap = {
-    pending: "Pending",
+    pending: "Dalam Proses",
     "in-transit": "Dalam Perjalanan",
-    delivered: "Terkirim",
-    cancelled: "Dibatalkan",
-    processing: "Diproses",
-    shipped: "Dikirim",
+    delivered: "Terkirim"
   };
   
   return statusMap[status] || status;

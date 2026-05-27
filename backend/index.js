@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
-const path = require("path"); // ← TAMBAHKAN INI
+const path = require("path");
 const db = require("./config/database");
 
 dotenv.config();
@@ -10,12 +10,12 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// MIDDLEWARE - CORS (IZINKAN SEMUA ORIGIN)
+// MIDDLEWARE
 app.use(cors());
 app.use(express.json());
 
-// ========== STATIC FILE SERVING UNTUK UPLOADS ==========
-app.use("/uploads", express.static(path.join(__dirname, "uploads"))); // ← TAMBAHKAN INI
+// STATIC FILE SERVING
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // IMPORT ROUTES
 const authRoutes = require("./routes/auth");
@@ -58,13 +58,10 @@ app.use((req, res) => {
     res.status(404).json({ success: false, message: "Endpoint tidak ditemukan" });
 });
 
-// START SERVER
+// START SERVER - HAPUS db.connect() DI SINI
 app.listen(PORT, () => {
     console.log(`✅ Server running on port ${PORT}`);
     console.log("📦 Database module loaded");
-    
-    db.connect((err) => {
-        if (err) console.error("❌ Database connection failed:", err.message);
-        else console.log("✅ Database connected");
-    });
+    // Koneksi database sudah di-handle di config/database.js
+    // Jangan panggil db.connect() lagi
 });
