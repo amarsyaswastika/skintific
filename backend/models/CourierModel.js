@@ -13,7 +13,7 @@ class CourierModel {
     db.query(sql, [id], callback);
   }
 
-  // Create new courier (hanya vendor_name, phone, logo_url)
+  // Create new courier (HANYA vendor_name, phone, logo_url)
   static create(data, callback) {
     const sql = `
       INSERT INTO couriers (vendor_name, phone, logo_url) 
@@ -26,7 +26,7 @@ class CourierModel {
     ], callback);
   }
 
-  // Update courier (hanya vendor_name, phone, logo_url)
+  // Update courier (HANYA vendor_name, phone, logo_url)
   static update(id, data, callback) {
     if (data.logo_url) {
       const sql = `

@@ -27,44 +27,45 @@ class ShipmentModel {
               WHERE s.tracking_number = ?`, [trackingNumber], callback);
   }
 
-  // Get shipments by user
-  static getByUser(userId, callback) {
-    db.query(`SELECT s.*, c.vendor_name as courier_name 
-              FROM shipments s 
-              LEFT JOIN couriers c ON s.courier_id = c.id 
-              WHERE s.user_id = ? 
-              ORDER BY s.created_at DESC`, [userId], callback);
-  }
-
-  // Get shipments by status
-  static getByStatus(status, callback) {
-    db.query(`SELECT s.*, c.vendor_name as courier_name, u.name as user_name 
-              FROM shipments s 
-              LEFT JOIN couriers c ON s.courier_id = c.id 
-              LEFT JOIN users u ON s.user_id = u.id 
-              WHERE s.status = ?`, [status], callback);
-  }
-
-  // Create new shipment
+  // Create new shipment (LENGKAP)
   static create(data, callback) {
     const sql = `INSERT INTO shipments (user_id, courier_id, tracking_number, sender_name, 
-                receiver_name, status, total_cost) 
-<<<<<<< HEAD
-                VALUES (?, ?, ?, ?, ?, ?, ?)`;
-=======
-                VALUES (?, ?, ?, ?, ?, ?, ?)`;  // ← PERBAIKI: ALUES → VALUES
->>>>>>> main
-    db.query(sql, [data.user_id || null, data.courier_id, data.tracking_number, 
-                  data.sender_name, data.receiver_name, data.status || "pending", 
-                  data.total_cost || null], callback);
+                receiver_name, receiver_address, destination, service_type, weight, item_description, status, total_cost) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    db.query(sql, [
+      data.user_id || null, 
+      data.courier_id, 
+      data.tracking_number, 
+      data.sender_name, 
+      data.receiver_name,
+      data.receiver_address || null,
+      data.destination || null,
+      data.service_type || 'Reguler',
+      data.weight || null,
+      data.item_description || null,
+      data.status || "pending", 
+      data.total_cost || null
+    ], callback);
   }
 
   // Update shipment
   static update(id, data, callback) {
     const sql = `UPDATE shipments SET courier_id = ?, sender_name = ?, receiver_name = ?, 
-                status = ?, total_cost = ? WHERE id = ?`;
-    db.query(sql, [data.courier_id, data.sender_name, data.receiver_name, 
-                  data.status, data.total_cost, id], callback);
+                receiver_address = ?, destination = ?, service_type = ?, weight = ?, item_description = ?, status = ?, total_cost = ? 
+                WHERE id = ?`;
+    db.query(sql, [
+      data.courier_id, 
+      data.sender_name, 
+      data.receiver_name, 
+      data.receiver_address || null,
+      data.destination || null,
+      data.service_type || 'Reguler',
+      data.weight || null,
+      data.item_description || null,
+      data.status, 
+      data.total_cost, 
+      id
+    ], callback);
   }
 
   // Update status only
@@ -77,11 +78,7 @@ class ShipmentModel {
     db.query("DELETE FROM shipments WHERE id = ?", [id], callback);
   }
 
-<<<<<<< HEAD
   // Get dashboard stats
-=======
-  // Get dashboard stats (PINDAHKAN KE DALAM CLASS)
->>>>>>> main
   static getStats(callback) {
     const sql = `
       SELECT 
@@ -93,7 +90,7 @@ class ShipmentModel {
     `;
     db.query(sql, callback);
   }
-<<<<<<< HEAD
+  
   // Get monthly shipment statistics for chart
   static getMonthlyStats(callback) {
     const sql = `
@@ -108,8 +105,6 @@ class ShipmentModel {
     `;
     db.query(sql, callback);
   }
-=======
->>>>>>> main
 }
 
 module.exports = ShipmentModel;

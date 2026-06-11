@@ -74,19 +74,52 @@ class UserController {
     });
   }
 
-  // PUT update user
+  // PUT update user (bisa update password)
   update(req, res) {
-    const { name, email, phone, address } = req.body;
+    const { name, email, phone, address, role, password } = req.body;
 
-    UserModel.update(
-      req.params.id,
-      { name, email, phone, address },
-      (err) => {
-        if (err)
+    // Validasi input
+    if (!name || !email) {
+      return res.status(400).json({
+        success: false,
+        message: "Nama dan email wajib diisi",
+      });
+    }
+
+    // Cek email sudah terdaftar oleh user lain
+    UserModel.getByEmail(email, (err, results) => {
+      if (err)
+        return res.status(500).json({ success: false, error: err.message });
+
+      // Jika email sudah dipakai user lain (bukan dirinya sendiri)
+      if (results.length > 0 && results[0].id != req.params.id) {
+        return res.status(400).json({
+          success: false,
+          message: "Email sudah terdaftar oleh user lain",
+        });
+      }
+
+      let updateData = { name, email, phone, address, role };
+
+      // Jika password diisi, hash dan update juga
+      if (password && password.trim() !== "") {
+        updateData.password = bcrypt.hashSync(password, 10);
+        console.log(`🔑 Password diubah untuk user: ${email}`);
+      }
+
+      UserModel.update(req.params.id, updateData, (err, result) => {
+        if (err) {
+          console.error("Error update user:", err);
           return res.status(500).json({ success: false, error: err.message });
+        }
+        if (result.affectedRows === 0) {
+          return res
+            .status(404)
+            .json({ success: false, message: "User tidak ditemukan" });
+        }
         res.json({ success: true, message: "User berhasil diupdate" });
-      },
-    );
+      });
+    });
   }
 
   // PUT update user role
@@ -107,14 +140,21 @@ class UserController {
     });
   }
 
-  // PUT update user password
+  // PUT update user password (endpoint terpisah untuk reset password)
   updatePassword(req, res) {
     const { password } = req.body;
 
-    if (!password) {
+    if (!password || password.trim() === "") {
       return res.status(400).json({
         success: false,
         message: "Password wajib diisi",
+      });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: "Password minimal 6 karakter",
       });
     }
 
@@ -129,129 +169,18 @@ class UserController {
 
   // DELETE user
   destroy(req, res) {
+    // Cek apakah user menghapus dirinya sendiri
+    if (req.params.id == req.user?.userId) {
+      return res.status(400).json({
+        success: false,
+        message: "Tidak bisa menghapus akun sendiri",
+      });
+    }
+
     UserModel.delete(req.params.id, (err) => {
       if (err)
         return res.status(500).json({ success: false, error: err.message });
       res.json({ success: true, message: "User berhasil dihapus" });
-    });
-  }
-
-  // ==================== METHOD UNTUK PROFILE SENDIRI ====================
-
-  // GET own profile
-  getProfile(req, res) {
-    const userId = req.user.id;
-    
-    UserModel.getById(userId, (err, results) => {
-      if (err) {
-        return res.status(500).json({ 
-          success: false, 
-          message: "Gagal mengambil profile",
-          error: err.message 
-        });
-      }
-      if (results.length === 0) {
-        return res.status(404).json({ 
-          success: false, 
-          message: "User tidak ditemukan" 
-        });
-      }
-      // Hapus password dari response
-      const { password, ...userData } = results[0];
-      res.json({ 
-        success: true, 
-        message: "Berhasil ambil profile",
-        data: userData 
-      });
-    });
-  }
-
-  // UPDATE own profile
-  updateProfile(req, res) {
-    const userId = req.user.id;
-    const { name, phone, address } = req.body;
-
-    if (!name) {
-      return res.status(400).json({
-        success: false,
-        message: "Nama wajib diisi"
-      });
-    }
-
-    // Ambil data user dulu untuk mendapatkan email
-    UserModel.getById(userId, (err, results) => {
-      if (err) {
-        return res.status(500).json({ success: false, error: err.message });
-      }
-      if (results.length === 0) {
-        return res.status(404).json({ success: false, message: "User tidak ditemukan" });
-      }
-
-      const user = results[0];
-      UserModel.update(userId, {
-        name: name,
-        email: user.email, // email tetap
-        phone: phone || null,
-        address: address || null
-      }, (err) => {
-        if (err) {
-          return res.status(500).json({ success: false, error: err.message });
-        }
-        res.json({ 
-          success: true, 
-          message: "Profile berhasil diupdate" 
-        });
-      });
-    });
-  }
-
-  // UPDATE own password
-  updateOwnPassword(req, res) {
-    const userId = req.user.id;
-    const { current_password, new_password } = req.body;
-
-    if (!current_password || !new_password) {
-      return res.status(400).json({
-        success: false,
-        message: "Password lama dan password baru wajib diisi"
-      });
-    }
-
-    if (new_password.length < 6) {
-      return res.status(400).json({
-        success: false,
-        message: "Password baru minimal 6 karakter"
-      });
-    }
-
-    // Ambil user untuk cek password lama
-    UserModel.getById(userId, (err, results) => {
-      if (err) {
-        return res.status(500).json({ success: false, error: err.message });
-      }
-      if (results.length === 0) {
-        return res.status(404).json({ success: false, message: "User tidak ditemukan" });
-      }
-
-      const isValid = bcrypt.compareSync(current_password, results[0].password);
-      
-      if (!isValid) {
-        return res.status(401).json({ 
-          success: false, 
-          message: "Password lama salah" 
-        });
-      }
-
-      const hashedPassword = bcrypt.hashSync(new_password, 10);
-      UserModel.updatePassword(userId, hashedPassword, (err) => {
-        if (err) {
-          return res.status(500).json({ success: false, error: err.message });
-        }
-        res.json({ 
-          success: true, 
-          message: "Password berhasil diubah" 
-        });
-      });
     });
   }
 }
