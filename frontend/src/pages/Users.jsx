@@ -3,12 +3,13 @@ import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Layout/Sidebar";
 import Header from "../components/Layout/Header";
 import Footer from "../components/Layout/Footer";
+import { HiOutlineEye, HiOutlineEyeOff } from "react-icons/hi";
 
 function Users() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-
+  const [showPassword, setShowPassword] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
@@ -16,7 +17,7 @@ function Users() {
     password: "",
     phone: "",
     address: "",
-    role: "customer",
+    role: "staff", // default staff (bukan customer)
   });
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
@@ -57,15 +58,21 @@ function Users() {
         : `${import.meta.env.VITE_API_URL}/users`;
       const method = editingUser ? "PUT" : "POST";
 
-      const body = editingUser
-        ? {
-            name: formData.name,
-            email: formData.email,
-            phone: formData.phone,
-            address: formData.address,
-            role: formData.role,
-          }
-        : { ...formData };
+      let body;
+      if (editingUser) {
+        body = {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          address: formData.address,
+          role: formData.role,
+        };
+        if (formData.password && formData.password.trim() !== "") {
+          body.password = formData.password;
+        }
+      } else {
+        body = { ...formData };
+      }
 
       const response = await fetch(url, {
         method,
@@ -86,11 +93,17 @@ function Users() {
           password: "",
           phone: "",
           address: "",
-          role: "customer",
+          role: "staff",
         });
+        alert(
+          editingUser ? "User berhasil diupdate" : "User berhasil ditambahkan",
+        );
+      } else {
+        alert(data.message || "Gagal menyimpan user");
       }
     } catch (error) {
       console.error("Error saving user:", error);
+      alert("Terjadi kesalahan, coba lagi nanti");
     }
   };
 
@@ -105,9 +118,15 @@ function Users() {
           },
         );
         const data = await response.json();
-        if (data.success) fetchUsers();
+        if (data.success) {
+          fetchUsers();
+          alert("User berhasil dihapus");
+        } else {
+          alert(data.message || "Gagal menghapus user");
+        }
       } catch (error) {
         console.error("Error deleting user:", error);
+        alert("Terjadi kesalahan, coba lagi nanti");
       }
     }
   };
@@ -126,9 +145,15 @@ function Users() {
         },
       );
       const data = await response.json();
-      if (data.success) fetchUsers();
+      if (data.success) {
+        fetchUsers();
+        alert("Role berhasil diupdate");
+      } else {
+        alert(data.message || "Gagal update role");
+      }
     } catch (error) {
       console.error("Error updating role:", error);
+      alert("Terjadi kesalahan, coba lagi nanti");
     }
   };
 
@@ -151,7 +176,7 @@ function Users() {
         password: "",
         phone: "",
         address: "",
-        role: "customer",
+        role: "staff",
       });
     }
     setShowModal(true);
@@ -160,8 +185,13 @@ function Users() {
   const roleClass = {
     admin: "bg-purple-100 text-purple-800",
     staff: "bg-blue-100 text-blue-800",
-    customer: "bg-green-100 text-green-800",
     courier: "bg-orange-100 text-orange-800",
+  };
+
+  const roleLabels = {
+    admin: "Admin",
+    staff: "Staff",
+    courier: "Kurir",
   };
 
   if (!isAdmin) {
@@ -197,13 +227,15 @@ function Users() {
         <div className="mb-6 flex justify-between items-center">
           <div>
             <h2 className="text-2xl font-bold text-gray-800">Manajemen User</h2>
-            <p className="text-gray-500 mt-1">Kelola data pengguna sistem</p>
+            <p className="text-gray-500 mt-1">
+              Kelola data pengguna sistem (Admin, Staff, Kurir)
+            </p>
           </div>
           <button
             onClick={() => openModal()}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition flex items-center gap-2"
           >
-            + Tambah User
+            <span>+</span> Tambah User
           </button>
         </div>
 
@@ -223,6 +255,9 @@ function Users() {
                     Telepon
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    Alamat
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                     Role
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
@@ -234,74 +269,97 @@ function Users() {
                 {users.length === 0 ? (
                   <tr>
                     <td
-                      colSpan="5"
+                      colSpan="6"
                       className="px-6 py-8 text-center text-gray-500"
                     >
                       Tidak ada data user
                     </td>
                   </tr>
                 ) : (
-                  users.map((user) => (
-                    <tr key={user.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 text-sm font-medium text-gray-800">
-                        {user.name}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">
-                        {user.email}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">
-                        {user.phone || "-"}
-                      </td>
-                      <td className="px-6 py-4">
-                        <select
-                          value={user.role}
-                          onChange={(e) =>
-                            handleUpdateRole(user.id, e.target.value)
-                          }
-                          className={`px-3 py-1 rounded-full text-xs font-medium border-0 cursor-pointer ${roleClass[user.role]}`}
-                        >
-                          <option value="admin">Admin</option>
-                          <option value="staff">Staff</option>
-                          <option value="customer">Customer</option>
-                          <option value="courier">Courier</option>
-                        </select>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => openModal(user)}
-                            className="text-yellow-600 hover:text-yellow-800 text-sm font-medium"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDelete(user.id)}
-                            className="text-red-600 hover:text-red-800 text-sm font-medium"
-                          >
-                            Hapus
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
+                  users.map(
+                    (user) =>
+                      // Filter: hanya tampilkan user dengan role admin, staff, courier
+                      user.role !== "customer" && (
+                        <tr key={user.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 text-sm font-medium text-gray-800">
+                            {user.name}
+                            {user.id === currentUser.id && (
+                              <span className="ml-2 text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">
+                                Anda
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-600">
+                            {user.email}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-600">
+                            {user.phone || "-"}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-600 max-w-[200px] truncate">
+                            {user.address || "-"}
+                          </td>
+                          <td className="px-6 py-4">
+                            <select
+                              value={user.role}
+                              onChange={(e) =>
+                                handleUpdateRole(user.id, e.target.value)
+                              }
+                              className={`px-3 py-1 rounded-full text-xs font-medium border-0 cursor-pointer ${roleClass[user.role]}`}
+                            >
+                              <option value="admin">Admin</option>
+                              <option value="staff">Staff</option>
+                              <option value="courier">Kurir</option>
+                            </select>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => openModal(user)}
+                                className="text-yellow-600 hover:text-yellow-800 text-sm font-medium"
+                              >
+                                Edit
+                              </button>
+                              {user.id !== currentUser.id && (
+                                <button
+                                  onClick={() => handleDelete(user.id)}
+                                  className="text-red-600 hover:text-red-800 text-sm font-medium"
+                                >
+                                  Hapus
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ),
+                  )
                 )}
               </tbody>
             </table>
           </div>
         </div>
+
+        {/* Info Total User */}
+        <div className="mt-4 text-right">
+          <p className="text-sm text-gray-500">
+            Total User:{" "}
+            <span className="font-medium">
+              {users.filter((u) => u.role !== "customer").length}
+            </span>
+          </p>
+        </div>
       </main>
 
-      {/* Modal Form */}
+      {/* Modal Form Tambah/Edit User */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
             <h3 className="text-xl font-bold mb-4">
               {editingUser ? "Edit User" : "Tambah User Baru"}
             </h3>
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
                 <label className="block text-gray-700 mb-2">
-                  Nama Lengkap *
+                  Nama Lengkap <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -313,8 +371,11 @@ function Users() {
                   required
                 />
               </div>
+
               <div className="mb-4">
-                <label className="block text-gray-700 mb-2">Email *</label>
+                <label className="block text-gray-700 mb-2">
+                  Email <span className="text-red-500">*</span>
+                </label>
                 <input
                   type="email"
                   value={formData.email}
@@ -325,20 +386,43 @@ function Users() {
                   required
                 />
               </div>
-              {!editingUser && (
-                <div className="mb-4">
-                  <label className="block text-gray-700 mb-2">Password *</label>
+
+              <div className="mb-4">
+                <label className="block text-gray-700 mb-2">
+                  Password{" "}
+                  {!editingUser && <span className="text-red-500">*</span>}
+                  {editingUser && (
+                    <span className="text-xs text-gray-400 ml-2">
+                      (Kosongkan jika tidak ingin mengubah)
+                    </span>
+                  )}
+                </label>
+                <div className="relative">
                   <input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     value={formData.password}
                     onChange={(e) =>
                       setFormData({ ...formData, password: e.target.value })
                     }
-                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
+                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
+                    required={!editingUser}
+                    minLength={6}
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  >
+                    {showPassword ? (
+                      <HiOutlineEyeOff size={20} />
+                    ) : (
+                      <HiOutlineEye size={20} />
+                    )}
+                  </button>
                 </div>
-              )}
+                <p className="text-xs text-gray-400 mt-1">Minimal 6 karakter</p>
+              </div>
+
               <div className="mb-4">
                 <label className="block text-gray-700 mb-2">
                   Nomor Telepon
@@ -349,9 +433,11 @@ function Users() {
                   onChange={(e) =>
                     setFormData({ ...formData, phone: e.target.value })
                   }
-                  className="w-full px-4 py-2 border rounded-lg"
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Contoh: 081234567890"
                 />
               </div>
+
               <div className="mb-4">
                 <label className="block text-gray-700 mb-2">Alamat</label>
                 <textarea
@@ -359,12 +445,16 @@ function Users() {
                   onChange={(e) =>
                     setFormData({ ...formData, address: e.target.value })
                   }
-                  className="w-full px-4 py-2 border rounded-lg resize-none"
-                  rows="2"
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  rows="3"
+                  placeholder="Jl. Contoh No. 123, Kota"
                 />
               </div>
+
               <div className="mb-6">
-                <label className="block text-gray-700 mb-2">Role *</label>
+                <label className="block text-gray-700 mb-2">
+                  Role <span className="text-red-500">*</span>
+                </label>
                 <select
                   value={formData.role}
                   onChange={(e) =>
@@ -375,15 +465,29 @@ function Users() {
                 >
                   <option value="admin">Admin</option>
                   <option value="staff">Staff</option>
-                  <option value="customer">Customer</option>
-                  <option value="courier">Courier</option>
+                  <option value="courier">Kurir</option>
                 </select>
+                <p className="text-xs text-gray-400 mt-1">
+                  Role menentukan hak akses user ke fitur sistem
+                </p>
               </div>
+
               <div className="flex gap-3">
                 <button
                   type="button"
-                  onClick={() => setShowModal(false)}
-                  className="flex-1 bg-gray-300 py-2 rounded-lg hover:bg-gray-400 transition"
+                  onClick={() => {
+                    setShowModal(false);
+                    setEditingUser(null);
+                    setFormData({
+                      name: "",
+                      email: "",
+                      password: "",
+                      phone: "",
+                      address: "",
+                      role: "staff",
+                    });
+                  }}
+                  className="flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-400 transition"
                 >
                   Batal
                 </button>

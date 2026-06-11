@@ -35,33 +35,37 @@ app.use("/tracking", trackingRoutes);
 
 // ROOT ROUTE
 app.get("/", (req, res) => {
-    res.json({ message: "🚀 SwiftTrack API is running" });
+  res.json({ message: "🚀 SwiftTrack API is running" });
 });
 
 // TEST DATABASE CONNECTION
 app.get("/api/test-db", (req, res) => {
-    db.query("SELECT 1", (err) => {
-        if (err) {
-            return res.status(500).json({ success: false, message: "Database connection failed", error: err.message });
-        }
-        res.json({ success: true, message: "Database connected" });
-    });
+  db.query("SELECT 1", (err) => {
+    if (err) {
+      return res
+        .status(500)
+        .json({
+          success: false,
+          message: "Database connection failed",
+          error: err.message,
+        });
+    }
+    res.json({ success: true, message: "Database connected" });
+  });
 });
 
 // HEALTH CHECK
 app.get("/api/health", (req, res) => {
-    res.json({ status: "OK", message: "Server SwiftTrack berjalan" });
+  res.json({ status: "OK", message: "Server SwiftTrack berjalan" });
 });
 
 // 404 HANDLER
 app.use((req, res) => {
-    res.status(404).json({ success: false, message: "Endpoint tidak ditemukan" });
+  res.status(404).json({ success: false, message: "Endpoint tidak ditemukan" });
 });
 
-// START SERVER - HAPUS db.connect() DI SINI
+// START SERVER
 app.listen(PORT, () => {
-    console.log(`✅ Server running on port ${PORT}`);
-    console.log("📦 Database module loaded");
-    // Koneksi database sudah di-handle di config/database.js
-    // Jangan panggil db.connect() lagi
+  console.log(`✅ Server running on port ${PORT}`);
+  console.log("📦 Database module loaded");
 });
