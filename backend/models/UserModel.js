@@ -41,15 +41,22 @@ class UserModel {
     );
   }
 
-  // Update user
+  //Update user
   static update(id, data, callback) {
-    const sql =
-      "UPDATE users SET name = ?, email = ?, phone = ?, address = ? WHERE id = ?";
-    db.query(
-      sql,
-      [data.name, data.email, data.phone, data.address, id],
-      callback,
-    );
+    let sql =
+      "UPDATE users SET name = ?, email = ?, phone = ?, address = ?, role = ?";
+    const values = [data.name, data.email, data.phone, data.address, data.role];
+
+    // Jika ada password, tambahkan ke query
+    if (data.password) {
+      sql += ", password = ?";
+      values.push(data.password);
+    }
+
+    sql += " WHERE id = ?";
+    values.push(id);
+
+    db.query(sql, values, callback);
   }
 
   // Update password
