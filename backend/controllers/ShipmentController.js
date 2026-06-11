@@ -1,13 +1,13 @@
-const ShipmentModel = require("../models/ShipmentModel");
+ const ShipmentModel = require("../models/ShipmentModel");
 const TrackingModel = require("../models/TrackingModel");
 
-// Import validator & error handler
+// Import validator & error handler (GABUNG jadi SATU)
 const {
   validateId,
   validateShipment,
+  validateShipmentUpdate,
   validateShipmentStatus,
 } = require("../utils/validator");
-const { validateId, validateShipment, validateShipmentUpdate, validateShipmentStatus } = require("../utils/validator");
 const { errorResponse, successResponse } = require("../utils/errorHandler");
 
 class ShipmentController {
@@ -66,27 +66,6 @@ class ShipmentController {
         },
         "Berhasil ambil statistik bulanan",
       );
-    });
-  }
-
-  // GET monthly shipment statistics for chart
-  getMonthlyStats(req, res) {
-    ShipmentModel.getMonthlyStats((err, results) => {
-      if (err) return errorResponse(res, err, 500, "Gagal mengambil statistik bulanan");
-      
-      const monthlyShipments = Array(12).fill(0);
-      const monthlyDeliveries = Array(12).fill(0);
-      
-      results.forEach(row => {
-        const monthIndex = row.month - 1;
-        monthlyShipments[monthIndex] = row.total;
-        monthlyDeliveries[monthIndex] = row.delivered;
-      });
-      
-      successResponse(res, {
-        shipments: monthlyShipments,
-        deliveries: monthlyDeliveries
-      }, "Berhasil ambil statistik bulanan");
     });
   }
 
@@ -220,17 +199,15 @@ class ShipmentController {
     });
   }
 
-  //  PUT update shipment (DIPERBAIKI - tanpa tracking_number)
+  // PUT update shipment (DIPERBAIKI - tanpa tracking_number)
   update(req, res) {
     const idError = validateId(req.params.id);
     if (idError) return errorResponse(res, idError, 400, idError);
 
-    const validationError = validateShipment(req.body);
+    // Gunakan validateShipmentUpdate (TIDAK memerlukan tracking_number)
+    const validationError = validateShipmentUpdate(req.body);
     if (validationError)
       return errorResponse(res, validationError, 400, validationError);
-    //  Gunakan validateShipmentUpdate (TIDAK memerlukan tracking_number)
-    const validationError = validateShipmentUpdate(req.body);
-    if (validationError) return errorResponse(res, validationError, 400, validationError);
 
     // Hapus tracking_number dari data update (tidak boleh diubah)
     const { tracking_number, ...updateData } = req.body;
