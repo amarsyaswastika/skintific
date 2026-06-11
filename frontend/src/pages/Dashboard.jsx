@@ -105,28 +105,28 @@ function Dashboard() {
         {/* Stats Cards dengan Icon React Icons */}
         <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatsCard 
-            title="Total Shipments" 
+            title="Total Pengiriman" 
             value={stats.total_paket} 
             icon={FaBoxOpen}
             color="blue" 
             change="+12%" 
           />
           <StatsCard 
-            title="In Transit" 
+            title="Dalam Perjalanan" 
             value={stats.in_transit} 
             icon={HiOutlineTruck}
             color="orange" 
             change="+5%" 
           />
           <StatsCard 
-            title="Pending" 
+            title="Dalam Proses" 
             value={stats.pending} 
             icon={MdOutlinePending}
             color="yellow" 
             change="-2%" 
           />
           <StatsCard 
-            title="Delivered" 
+            title="Terkirim" 
             value={stats.delivered} 
             icon={HiOutlineCheckCircle}
             color="green" 

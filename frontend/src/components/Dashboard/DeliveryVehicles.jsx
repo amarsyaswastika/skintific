@@ -16,12 +16,12 @@ function DeliveryVehicles() {
       });
       const data = await response.json();
       if (data.success) {
-        // Format data untuk delivery vehicles
+        // Format data untuk kendaraan pengiriman
         const vehicleData = data.data.map((courier) => ({
           id: courier.id,
           name: courier.vendor_name,
           logo_url: courier.logo_url,
-          // Simulasi jumlah kendaraan (bisa diganti dengan data real nanti)
+          // Simulasi jumlah kendaraan 
           count: Math.floor(Math.random() * 10) + 2,
         }));
         setVehicles(vehicleData);
@@ -54,19 +54,19 @@ function DeliveryVehicles() {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="font-semibold text-gray-800">Delivery Vehicles</h3>
-        <span className="text-xs text-gray-500">Vehicles operating on the road</span>
+        <h3 className="font-semibold text-gray-800">Kendaraan Pengiriman</h3>
+        <span className="text-xs text-gray-500">Kendaraan yang beroperasi di jalan</span>
       </div>
 
       <div className="mb-4">
         <div className="flex items-baseline justify-between">
           <span className="text-3xl font-bold text-gray-800">{totalVehicles}</span>
-          <span className="text-sm text-green-500">+3.85% than last week</span>
+          <span className="text-sm text-green-500">+3.85% dari minggu lalu</span>
         </div>
         <div className="mt-2 h-2 w-full rounded-full bg-gray-200">
           <div className="h-2 w-3/4 rounded-full bg-blue-500"></div>
         </div>
-        <p className="mt-2 text-xs text-gray-500">On-route · {onRouteVehicles} vehicles</p>
+        <p className="mt-2 text-xs text-gray-500">Dalam perjalanan · {onRouteVehicles} kendaraan</p>
       </div>
 
       <div className="space-y-3">
@@ -88,7 +88,7 @@ function DeliveryVehicles() {
               )}
               <span className="text-sm text-gray-700">{vehicle.name}</span>
             </div>
-            <span className="text-sm font-medium text-gray-800">{vehicle.count} vehicles</span>
+            <span className="text-sm font-medium text-gray-800">{vehicle.count} kendaraan</span>
           </div>
         ))}
       </div>
