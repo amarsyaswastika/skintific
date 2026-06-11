@@ -7,6 +7,7 @@ const {
   validateShipment,
   validateShipmentStatus,
 } = require("../utils/validator");
+const { validateId, validateShipment, validateShipmentUpdate, validateShipmentStatus } = require("../utils/validator");
 const { errorResponse, successResponse } = require("../utils/errorHandler");
 
 class ShipmentController {
@@ -73,12 +74,11 @@ class ShipmentController {
     ShipmentModel.getMonthlyStats((err, results) => {
       if (err) return errorResponse(res, err, 500, "Gagal mengambil statistik bulanan");
       
-      // Inisialisasi array 12 bulan (Jan-Dec) dengan nilai 0
       const monthlyShipments = Array(12).fill(0);
       const monthlyDeliveries = Array(12).fill(0);
       
       results.forEach(row => {
-        const monthIndex = row.month - 1; // Jan=0, Feb=1, dst
+        const monthIndex = row.month - 1;
         monthlyShipments[monthIndex] = row.total;
         monthlyDeliveries[monthIndex] = row.delivered;
       });
@@ -220,7 +220,7 @@ class ShipmentController {
     });
   }
 
-  // PUT update shipment
+  //  PUT update shipment (DIPERBAIKI - tanpa tracking_number)
   update(req, res) {
     const idError = validateId(req.params.id);
     if (idError) return errorResponse(res, idError, 400, idError);
@@ -228,8 +228,14 @@ class ShipmentController {
     const validationError = validateShipment(req.body);
     if (validationError)
       return errorResponse(res, validationError, 400, validationError);
+    //  Gunakan validateShipmentUpdate (TIDAK memerlukan tracking_number)
+    const validationError = validateShipmentUpdate(req.body);
+    if (validationError) return errorResponse(res, validationError, 400, validationError);
 
-    ShipmentModel.update(req.params.id, req.body, (err, result) => {
+    // Hapus tracking_number dari data update (tidak boleh diubah)
+    const { tracking_number, ...updateData } = req.body;
+
+    ShipmentModel.update(req.params.id, updateData, (err, result) => {
       if (err) return errorResponse(res, err, 500, "Gagal update pengiriman");
       if (result.affectedRows === 0) {
         return errorResponse(

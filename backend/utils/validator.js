@@ -41,7 +41,7 @@ function validateRate(data) {
   return null;
 }
 
-// ==================== VALIDASI SHIPMENT ====================
+// ==================== VALIDASI SHIPMENT (CREATE) ====================
 function validateShipment(data) {
   if (!data.courier_id || isNaN(data.courier_id)) {
     return "ID kurir harus angka";
@@ -50,6 +50,24 @@ function validateShipment(data) {
   if (data.tracking_number.length < 5) return "Tracking minimal 5 karakter";
   if (!data.sender_name) return "Nama pengirim wajib";
   if (!data.receiver_name) return "Nama penerima wajib";
+
+  return null;
+}
+
+// ==================== VALIDASI SHIPMENT UPDATE ====================
+function validateShipmentUpdate(data) {
+  if (!data.courier_id || isNaN(data.courier_id)) {
+    return "ID kurir harus angka";
+  }
+  // tracking_number TIDAK divalidasi (tidak boleh diupdate)
+  if (!data.sender_name) return "Nama pengirim wajib";
+  if (!data.receiver_name) return "Nama penerima wajib";
+  if (!data.receiver_address) return "Alamat penerima wajib";
+  if (!data.destination) return "Kota tujuan wajib";
+  if (!data.service_type) return "Jenis layanan wajib";
+  if (!data.weight || isNaN(data.weight) || data.weight <= 0) {
+    return "Berat harus angka positif";
+  }
 
   return null;
 }
@@ -147,6 +165,7 @@ module.exports = {
   validateCourier,
   validateRate,
   validateShipment,
+  validateShipmentUpdate, 
   validateShipmentStatus,
   validateTracking,
   validateRegister,

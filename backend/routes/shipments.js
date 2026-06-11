@@ -4,18 +4,18 @@ const ShipmentController = require("../controllers/ShipmentController");
 const { authMiddleware } = require("../middleware/auth");
 const authorize = require("../middleware/authorize");
 
-// SEMUA ROUTE SHIPMENT hanya untuk admin & staff (yang sudah login dashboard)
+// Semua route harus login dulu
 router.use(authMiddleware);
-router.use(authorize("admin", "staff")); // ← customer & courier TIDAK BISA akses
 
-router.get("/dashboard/stats", ShipmentController.getStats);
-router.get("/monthly-stats", ShipmentController.getMonthlyStats);
-router.get("/", ShipmentController.index);
-router.get("/:id", ShipmentController.show);
-router.post("/", ShipmentController.store);
-router.put("/:id", ShipmentController.update);
-router.put("/:id/status", ShipmentController.updateStatus);
-router.delete("/:id", ShipmentController.destroy);
-router.get("/:id/tracking", ShipmentController.getTrackingTimeline);
+//GET shipments
+router.get("/", authorize("admin", "staff", "courier"), ShipmentController.index);
+router.get("/:id", authorize("admin", "staff", "courier"), ShipmentController.show);
+router.get("/:id/tracking", authorize("admin", "staff", "courier"), ShipmentController.getTrackingTimeline);
+
+// POST, PUT, DELETE - Hanya admin & staff (Courier TIDAK BISA)
+router.post("/", authorize("admin", "staff"), ShipmentController.store);
+router.put("/:id", authorize("admin", "staff"), ShipmentController.update);
+router.put("/:id/status", authorize("admin", "staff"), ShipmentController.updateStatus);
+router.delete("/:id", authorize("admin"), ShipmentController.destroy);
 
 module.exports = router;

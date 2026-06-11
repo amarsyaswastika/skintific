@@ -1,4 +1,10 @@
 import { useState, useEffect } from "react";
+import { 
+  HiOutlineClock, 
+  HiOutlineTruck, 
+  HiOutlineCheckCircle 
+} from "react-icons/hi";
+import { getStatusText, getStatusBadgeClass } from "../../utils/format";
 
 function RecentActivities() {
   const [activities, setActivities] = useState([]);
@@ -16,10 +22,9 @@ function RecentActivities() {
       });
       const data = await response.json();
       if (data.success) {
-        // Ambil 5 shipment terbaru untuk aktivitas
         const recentActivities = data.data.slice(0, 5).map((shipment) => ({
           id: shipment.tracking_number,
-          category: shipment.status === "in-transit" ? "In Transit" : shipment.status === "delivered" ? "Delivered" : "Pending",
+          category: shipment.status === "in-transit" ? "Dalam Perjalanan" : shipment.status === "delivered" ? "Terkirim" : "Pending",
           company: shipment.courier_name || "-",
           arrival: formatRelativeTime(shipment.created_at),
           status: shipment.status,
@@ -45,28 +50,27 @@ function RecentActivities() {
     return `${diffDays} hari lalu`;
   };
 
-  const statusClass = {
-    pending: "bg-yellow-100 text-yellow-800",
-    "in-transit": "bg-blue-100 text-blue-800",
-    delivered: "bg-green-100 text-green-800",
-  };
-
-  const statusText = {
-    pending: "Pending",
-    "in-transit": "In Transit",
-    delivered: "Delivered",
+  const getStatusIcon = (status) => {
+    const iconClass = "w-4 h-4";
+    const iconMap = {
+      pending: <HiOutlineClock className={`${iconClass} text-yellow-500`} />,
+      "in-transit": <HiOutlineTruck className={`${iconClass} text-blue-500`} />,
+      delivered: <HiOutlineCheckCircle className={`${iconClass} text-green-500`} />,
+    };
+    return iconMap[status] || <HiOutlineClock className={`${iconClass} text-gray-500`} />;
   };
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl shadow-sm p-6">
-        <div className="animate-pulse">
-          <div className="h-6 bg-gray-200 rounded w-1/3 mb-4"></div>
-          <div className="space-y-3">
-            <div className="h-10 bg-gray-200 rounded"></div>
-            <div className="h-10 bg-gray-200 rounded"></div>
-            <div className="h-10 bg-gray-200 rounded"></div>
-          </div>
+      <div className="bg-white rounded-xl shadow-sm">
+        <div className="border-b border-gray-100 p-5">
+          <h3 className="font-semibold text-gray-800">Aktivitas Pengiriman</h3>
+          <p className="text-xs text-gray-500 mt-1">Aktivitas pengiriman terbaru</p>
+        </div>
+        <div className="animate-pulse p-5 space-y-3">
+          <div className="h-10 bg-gray-200 rounded"></div>
+          <div className="h-10 bg-gray-200 rounded"></div>
+          <div className="h-10 bg-gray-200 rounded"></div>
         </div>
       </div>
     );
@@ -75,18 +79,18 @@ function RecentActivities() {
   return (
     <div className="bg-white rounded-xl shadow-sm">
       <div className="border-b border-gray-100 p-5">
-        <h3 className="font-semibold text-gray-800">Delivery Activities</h3>
-        <p className="text-xs text-gray-500 mt-1">Track your recent shipping activities</p>
+        <h3 className="font-semibold text-gray-800">Aktivitas Pengiriman</h3>
+        <p className="text-xs text-gray-500 mt-1">Aktivitas pengiriman terbaru</p>
       </div>
 
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">Order ID</th>
-              <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
-              <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">Company</th>
-              <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">Arrival</th>
+              <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID Pesanan</th>
+              <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kategori</th>
+              <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kurir</th>
+              <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">Waktu</th>
               <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
             </tr>
           </thead>
@@ -105,9 +109,12 @@ function RecentActivities() {
                   <td className="px-5 py-3 text-sm text-gray-600">{item.company}</td>
                   <td className="px-5 py-3 text-sm text-gray-500">{item.arrival}</td>
                   <td className="px-5 py-3">
-                    <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${statusClass[item.status]}`}>
-                      {statusText[item.status]}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      {getStatusIcon(item.status)}
+                      <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getStatusBadgeClass(item.status)}`}>
+                        {getStatusText(item.status)}
+                      </span>
+                    </div>
                   </td>
                 </tr>
               ))
