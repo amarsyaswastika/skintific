@@ -2,7 +2,7 @@ function DeliveryChart() {
   // Data per bulan (jumlah paket)
   const shipments = [12, 19, 15, 17, 14, 18, 22, 24, 20, 16, 13, 11];
   const deliveries = [8, 14, 11, 13, 10, 14, 18, 20, 16, 12, 9, 7];
-  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
   
   // Cari nilai maksimal untuk skala
   const maxValue = Math.max(...shipments, ...deliveries, 1);
@@ -18,15 +18,15 @@ function DeliveryChart() {
       {/* Header */}
       <div className="p-5 border-b border-gray-100">
         <div className="flex items-center justify-between">
-          <h3 className="font-semibold text-gray-800">Delivery Statistics</h3>
+          <h3 className="font-semibold text-gray-800">Statistik Pengiriman</h3>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <div className="h-3 w-3 rounded-full bg-blue-500"></div>
-              <span className="text-sm text-gray-600">Shipment</span>
+              <span className="text-sm text-gray-600">Pengiriman</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="h-3 w-3 rounded-full bg-green-500"></div>
-              <span className="text-sm text-gray-600">Delivery</span>
+              <span className="text-sm text-gray-600">Terkirim</span>
             </div>
           </div>
         </div>
@@ -67,17 +67,17 @@ function DeliveryChart() {
         <div className="mt-4 pt-4 border-t border-gray-100">
           <div className="flex justify-between">
             <div className="text-center flex-1">
-              <p className="text-xs text-gray-500">Total Deliveries</p>
+              <p className="text-xs text-gray-500">Total Terkirim</p>
               <p className="text-lg font-bold text-gray-800">{totalDeliveries}</p>
-              <p className="text-xs text-gray-400">from {totalShipments} total</p>
+              <p className="text-xs text-gray-400">dari {totalShipments} total</p>
             </div>
             <div className="text-center flex-1 border-x border-gray-100">
-              <p className="text-xs text-gray-500">On Time Delivery</p>
+              <p className="text-xs text-gray-500">Tepat Waktu</p>
               <p className="text-lg font-bold text-green-600">{onTimePercent}%</p>
-              <p className="text-xs text-gray-400">{totalDeliveries} of {totalShipments}</p>
+              <p className="text-xs text-gray-400">{totalDeliveries} dari {totalShipments}</p>
             </div>
             <div className="text-center flex-1">
-              <p className="text-xs text-gray-500">Active Couriers</p>
+              <p className="text-xs text-gray-500">Kurir Aktif</p>
               <p className="text-lg font-bold text-blue-600">24</p>
               <p className="text-xs text-green-500">+3.85%</p>
             </div>

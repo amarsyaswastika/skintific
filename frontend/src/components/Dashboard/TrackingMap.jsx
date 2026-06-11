@@ -152,7 +152,7 @@ function TrackingMap() {
     return (
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="p-5 border-b border-gray-100">
-          <h3 className="font-semibold text-gray-800">Tracking Delivery</h3>
+          <h3 className="font-semibold text-gray-800">Lacak Pengiriman</h3>
         </div>
         <div className="p-5">
           <div className="bg-yellow-50 text-yellow-700 p-4 rounded-lg text-center">
@@ -169,8 +169,8 @@ function TrackingMap() {
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
       <div className="p-5 border-b border-gray-100">
         <div className="flex items-center justify-between">
-          <h3 className="font-semibold text-gray-800">Tracking Delivery</h3>
-          <span className="text-xs text-gray-500">Live Tracking</span>
+          <h3 className="font-semibold text-gray-800">Lacak Pengiriman</h3>
+          <span className="text-xs text-gray-500">Lacak Langsung</span>
         </div>
       </div>
 
@@ -185,7 +185,7 @@ function TrackingMap() {
         {/* Tracking Info */}
         <div className="mt-4">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-xs text-gray-500">Tracking ID</p>
+            <p className="text-xs text-gray-500">ID Tracking</p>
             <p className="text-xs font-mono font-medium text-gray-800">
               {latestShipment?.tracking_number || "#28745-72809hjk"}
             </p>
@@ -212,8 +212,8 @@ function TrackingMap() {
                   route.status === "delivered" ? "bg-green-100 text-green-800" :
                   route.status === "transit" ? "bg-orange-100 text-orange-800" : "bg-blue-100 text-blue-800"
                 }`}>
-                  {route.status === "delivered" ? "Delivered" : 
-                   route.status === "transit" ? "In Transit" : "Picked Up"}
+                  {route.status === "delivered" ? "Terkirim" : 
+                   route.status === "transit" ? "Dalam Perjalanan" : "Dijemput"}
                 </span>
               </div>
             ))}
@@ -224,13 +224,13 @@ function TrackingMap() {
             onClick={() => window.open(`https://www.google.com/maps/dir/Jakarta/Bandung`, "_blank")}
             className="mt-4 w-full bg-blue-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition"
           >
-            View Full Route on Google Maps
+            Lihat Rute Lengkap di Google Maps
           </button>
         </div>
       </div>
 
       <div className="bg-gray-50 px-5 py-3 border-t border-gray-100">
-        <p className="text-xs text-gray-500 text-center">Map data ©2026 Google | Live location tracking</p>
+        <p className="text-xs text-gray-500 text-center">Data peta ©2026 Google | Lacak lokasi langsung</p>
       </div>
     </div>
   );
