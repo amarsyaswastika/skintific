@@ -15,8 +15,7 @@ function Couriers() {
   });
 const [logoFile, setLogoFile] = useState(null);
   const navigate = useNavigate();
-
-  // Ambil token setiap kali dibutuhkan
+// Ambil token setiap kali dibutuhkan
   const getToken = () => localStorage.getItem("token");
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const isAdmin = user.role === "admin";
@@ -160,7 +159,6 @@ const [logoFile, setLogoFile] = useState(null);
       <main className="ml-64 mt-16 p-6">
         <div className="mb-6 flex justify-between items-center">
           <div>
-            <h2 className="text-2xl font-bold text-gray-800">Manajemen Kurir</h2>
             <p className="text-gray-500 mt-1">Kelola data kurir dan mitra pengiriman</p>
           </div>
           {isAdmin && (
