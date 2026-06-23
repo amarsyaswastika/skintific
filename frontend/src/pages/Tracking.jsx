@@ -231,7 +231,7 @@ function Tracking() {
                 {shipments.length === 0 ? (
                   <tr>
                     <td colSpan="5" className="px-6 py-8 text-center text-gray-500">
-                      Tidak ada数据 pengiriman
+                      Tidak ada pengiriman
                     </td>
                   </tr>
                 ) : (
