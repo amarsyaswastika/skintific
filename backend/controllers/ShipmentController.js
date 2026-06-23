@@ -18,7 +18,48 @@ class ShipmentController {
   getStats(req, res) {
     ShipmentModel.getStats((err, results) => {
       if (err) return errorResponse(res, err, 500, "Gagal mengambil statistik");
-      successResponse(res, results[0] || { total_paket: 0, in_transit: 0, pending: 0, delivered: 0 }, "Berhasil ambil statistik");
+      successResponse(
+        res,
+        results[0] || {
+          total_paket: 0,
+          in_transit: 0,
+          pending: 0,
+          delivered: 0,
+        },
+        "Berhasil ambil statistik",
+      );
+    });
+  }
+
+  // GET monthly shipment statistics for chart
+  getMonthlyStats(req, res) {
+    ShipmentModel.getMonthlyStats((err, results) => {
+      if (err)
+        return errorResponse(
+          res,
+          err,
+          500,
+          "Gagal mengambil statistik bulanan",
+        );
+
+      // Inisialisasi array 12 bulan (Jan-Dec) dengan nilai 0
+      const monthlyShipments = Array(12).fill(0);
+      const monthlyDeliveries = Array(12).fill(0);
+
+      results.forEach((row) => {
+        const monthIndex = row.month - 1; // Jan=0, Feb=1, dst
+        monthlyShipments[monthIndex] = row.total;
+        monthlyDeliveries[monthIndex] = row.delivered;
+      });
+
+      successResponse(
+        res,
+        {
+          shipments: monthlyShipments,
+          deliveries: monthlyDeliveries,
+        },
+        "Berhasil ambil statistik bulanan",
+      );
     });
   }
 
@@ -32,8 +73,10 @@ class ShipmentController {
       
       results.forEach(row => {
         const monthIndex = row.month - 1;
-        monthlyShipments[monthIndex] = row.total;
-        monthlyDeliveries[monthIndex] = row.delivered;
+        if (monthIndex >= 0 && monthIndex < 12) {
+          monthlyShipments[monthIndex] = row.total || 0;
+          monthlyDeliveries[monthIndex] = row.delivered || 0;
+        }
       });
       
       successResponse(res, {
@@ -134,11 +177,14 @@ class ShipmentController {
     });
   }
 
-  //  PUT update shipment (DIPERBAIKI - tanpa tracking_number)
+  // PUT update shipment (DIPERBAIKI - tanpa tracking_number)
   update(req, res) {
     const idError = validateId(req.params.id);
     if (idError) return errorResponse(res, idError, 400, idError);
 
+    const validationError = validateShipment(req.body);
+    if (validationError)
+      return errorResponse(res, validationError, 400, validationError);
     //  Gunakan validateShipmentUpdate (TIDAK memerlukan tracking_number)
     const validationError = validateShipmentUpdate(req.body);
     if (validationError) return errorResponse(res, validationError, 400, validationError);
