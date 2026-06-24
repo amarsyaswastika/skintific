@@ -20,70 +20,49 @@ function App() {
           <Route path="/" element={<PublicTracking />} />
           <Route path="/tracking/public" element={<PublicTracking />} />
           <Route path="/login" element={<Login />} />
-
+          
           {/* Protected Routes - Admin & Staff */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute allowedRoles={["admin", "staff"]}>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/shipments"
-            element={
-              <ProtectedRoute allowedRoles={["admin", "staff"]}>
-                <Shipments />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/couriers"
-            element={
-              <ProtectedRoute allowedRoles={["admin", "staff"]}>
-                <Couriers />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/rates"
-            element={
-              <ProtectedRoute allowedRoles={["admin", "staff"]}>
-                <Rates />
-              </ProtectedRoute>
-            }
-          />
-
+          <Route path="/dashboard" element={
+            <ProtectedRoute allowedRoles={["admin", "staff"]}>
+              <Dashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/shipments" element={
+            <ProtectedRoute allowedRoles={["admin", "staff"]}>
+              <Shipments />
+            </ProtectedRoute>
+          } />
+          <Route path="/couriers" element={
+            <ProtectedRoute allowedRoles={["admin", "staff"]}>
+              <Couriers />
+            </ProtectedRoute>
+          } />
+          <Route path="/rates" element={
+            <ProtectedRoute allowedRoles={["admin", "staff"]}>
+              <Rates />
+            </ProtectedRoute>
+          } />
+          
           {/* Protected Routes - Admin, Staff, Courier bisa akses Tracking */}
-          <Route
-            path="/tracking"
-            element={
-              <ProtectedRoute allowedRoles={["admin", "staff", "courier"]}>
-                <Tracking />
-              </ProtectedRoute>
-            }
-          />
-
+          <Route path="/tracking" element={
+            <ProtectedRoute allowedRoles={["admin", "staff", "courier"]}>
+              <Tracking />
+            </ProtectedRoute>
+          } />
+          
           {/* Protected Routes - Admin only */}
-          <Route
-            path="/users"
-            element={
-              <ProtectedRoute allowedRoles={["admin"]}>
-                <Users />
-              </ProtectedRoute>
-            }
-          />
-
+          <Route path="/users" element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <Users />
+            </ProtectedRoute>
+          } />
+          
           {/* Profile - Semua role */}
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute allowedRoles={["admin", "staff", "courier"]}>
-                <Profile />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/profile" element={
+            <ProtectedRoute allowedRoles={["admin", "staff", "courier"]}>
+              <Profile />
+            </ProtectedRoute>
+          } />
         </Routes>
       </AuthProvider>
     </BrowserRouter>
