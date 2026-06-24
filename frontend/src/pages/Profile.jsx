@@ -25,6 +25,18 @@ function Profile() {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
+  // Fungsi untuk kirim notifikasi
+  const sendNotification = (type, message) => {
+    const newNotif = { type, message };
+    localStorage.setItem("newNotification", JSON.stringify(newNotif));
+    window.dispatchEvent(
+      new StorageEvent("storage", {
+        key: "newNotification",
+        newValue: JSON.stringify(newNotif),
+      }),
+    );
+  };
+
   useEffect(() => {
     if (!token) {
       navigate("/login");
@@ -78,6 +90,9 @@ function Profile() {
       const data = await response.json();
 
       if (data.success) {
+        // Notifikasi untuk update profile
+        sendNotification("user", `Profile ${formData.name} berhasil diupdate`);
+
         setMessage({ type: "success", text: "Profile berhasil diupdate!" });
         setEditMode(false);
         fetchProfile();
@@ -137,6 +152,12 @@ function Profile() {
       const data = await response.json();
 
       if (data.success) {
+        // Notifikasi untuk ganti password
+        sendNotification(
+          "user",
+          `Password untuk ${profile?.name} berhasil diubah`,
+        );
+
         setMessage({
           type: "success",
           text: "Password berhasil diubah! Silakan login ulang.",
