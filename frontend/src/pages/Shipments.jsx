@@ -37,6 +37,16 @@ function Shipments() {
   const canManage = isAdmin || isStaff;
   const canDelete = isAdmin;
 
+  // FUNGSI KIRIM NOTIFIKASI
+  const sendNotification = (type, message) => {
+    const newNotif = { type, message };
+    localStorage.setItem("newNotification", JSON.stringify(newNotif));
+    window.dispatchEvent(new StorageEvent('storage', {
+      key: 'newNotification',
+      newValue: JSON.stringify(newNotif)
+    }));
+  };
+
   useEffect(() => {
     if (!token) {
       navigate("/login");
@@ -159,6 +169,8 @@ function Shipments() {
         });
         const data = await response.json();
         if (data.success) {
+          // NOTIFIKASI HAPUS
+          sendNotification('shipment', `Pengiriman berhasil dihapus`);
           fetchPengiriman();
         }
       } catch (error) {
@@ -171,7 +183,7 @@ function Shipments() {
   const generateTrackingNumber = () => {
     const prefix = "SWT";
     const random = Math.floor(Math.random() * 1000000);
-    const angka = random.toString().padStart(6, '0');
+    const angka = random.toString().padStart(9, '0');
     return `${prefix}${angka}`;
   };
 
@@ -222,6 +234,9 @@ function Shipments() {
       });
       const data = await response.json();
       if (data.success) {
+        // NOTIFIKASI TAMBAH
+        sendNotification('shipment', `Pengiriman baru ditambahkan: ${trackingNumber}`);
+        
         fetchPengiriman();
         setShowModal(false);
         setFormData({
@@ -290,6 +305,9 @@ function Shipments() {
       });
       const data = await response.json();
       if (data.success) {
+        // NOTIFIKASI UPDATE
+        sendNotification('shipment', `Pengiriman ${editingShipment.tracking_number} berhasil diupdate`);
+        
         fetchPengiriman();
         setShowEditModal(false);
         setEditingShipment(null);
@@ -427,7 +445,6 @@ function Shipments() {
               <h1>SwiftTrack</h1>
               <p>#FastReliableTrack</p>
             </div>
-            <div class="label-type">SHIPPING LABEL</div>
           </div>
           <div class="awb-section">
             <div>
@@ -610,7 +627,6 @@ function Shipments() {
                         <td className="px-6 py-4 text-sm font-mono font-medium text-gray-800">{shipment.tracking_number}</td>
                         <td className="px-6 py-4 text-sm text-gray-600">{shipment.sender_name}</td>
                         <td className="px-6 py-4 text-sm text-gray-600">{shipment.receiver_name}</td>
-                        {/* TAMPILKAN ALAMAT PENERIMA */}
                         <td className="px-6 py-4 text-sm text-gray-600 max-w-[200px] truncate">
                           {shipment.receiver_address || '-'}
                         </td>
