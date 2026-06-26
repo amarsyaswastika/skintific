@@ -19,39 +19,59 @@ function Rates() {
         price_per_kg: "",
     });
     const navigate = useNavigate();
-    const token = localStorage.getItem("token");
+    
+    // Buat fungsi untuk ambil token fresh
+    const getToken = () => localStorage.getItem("token");
     const user = JSON.parse(localStorage.getItem("user") || "{}");
     const isAdmin = user.role === "admin";
+    const isStaff = user.role === "staff";
+    const canView = isAdmin || isStaff;
 
     useEffect(() => {
+        const token = getToken();
         if (!token) {
             navigate("/login");
             return;
         }
         fetchRates();
         fetchCouriers();
-    }, [token, navigate]);
+    }, [navigate]);
 
     const fetchRates = async () => {
+        const token = getToken(); // Ambil token fresh setiap kali
+        if (!token) return;
+
         try {
             const response = await fetch(`${import.meta.env.VITE_API_URL}/rates`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const data = await response.json();
-            if (data.success) setRates(data.data);
+            if (data.success) {
+                setRates(data.data);
+            } else if (data.message === "Akses ditolak. Token tidak ditemukan.") {
+                localStorage.removeItem("token");
+                localStorage.removeItem("user");
+                navigate("/login");
+            } else {
+                console.error("Error:", data.message);
+            }
         } catch (error) {
             console.error("Error fetching rates:", error);
         }
     };
 
     const fetchCouriers = async () => {
+        const token = getToken(); // Ambil token fresh setiap kali
+        if (!token) return;
 
         try {
             const response = await fetch(`${import.meta.env.VITE_API_URL}/couriers`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const data = await response.json();
-            if (data.success) setCouriers(data.data);
+            if (data.success) {
+                setCouriers(data.data);
+            }
         } catch (error) {
             console.error("Error fetching couriers:", error);
         } finally {
@@ -61,6 +81,9 @@ function Rates() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const token = getToken(); // Ambil token fresh
+        if (!token) return;
+
         try {
             const url = editingRate
                 ? `${import.meta.env.VITE_API_URL}/rates/${editingRate.id}`
@@ -73,7 +96,13 @@ function Rates() {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify(formData),
+                body: JSON.stringify({
+                    courier_id: parseInt(formData.courier_id),
+                    origin: formData.origin,
+                    destination: formData.destination,
+                    service_type: formData.service_type,
+                    price_per_kg: parseFloat(formData.price_per_kg),
+                }),
             });
             const data = await response.json();
             if (data.success) {
@@ -81,24 +110,34 @@ function Rates() {
                 setShowModal(false);
                 setEditingRate(null);
                 setFormData({ courier_id: "", origin: "", destination: "", service_type: "Reguler", price_per_kg: "" });
+            } else {
+                alert(data.message || "Gagal menyimpan tarif");
             }
         } catch (error) {
             console.error("Error saving rate:", error);
+            alert("Terjadi kesalahan, coba lagi nanti");
         }
     };
 
     const handleDelete = async (id) => {
-        if (window.confirm("Yakin ingin menghapus tarif ini?")) {
-            try {
-                const response = await fetch(`${import.meta.env.VITE_API_URL}/rates/${id}`, {
-                    method: "DELETE",
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-                const data = await response.json();
-                if (data.success) fetchRates();
-            } catch (error) {
-                console.error("Error deleting rate:", error);
+        if (!window.confirm("Yakin ingin menghapus tarif ini?")) return;
+        const token = getToken(); // Ambil token fresh
+        if (!token) return;
+
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/rates/${id}`, {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await response.json();
+            if (data.success) {
+                fetchRates();
+            } else {
+                alert(data.message || "Gagal menghapus tarif");
             }
+        } catch (error) {
+            console.error("Error deleting rate:", error);
+            alert("Terjadi kesalahan, coba lagi nanti");
         }
     };
 
@@ -124,6 +163,12 @@ function Rates() {
         return courier?.vendor_name || "-";
     };
 
+    // Jika bukan admin atau staff, redirect ke dashboard
+    if (!canView && !loading) {
+        navigate("/dashboard");
+        return null;
+    }
+
     if (loading) {
         return (
             <div className="flex h-screen items-center justify-center">
@@ -140,14 +185,12 @@ function Rates() {
             <main className="ml-64 mt-16 p-6">
                 <div className="mb-6 flex justify-between items-center">
                     <div>
-                        <h2 className="text-2xl font-bold text-gray-800">Manajemen Tarif</h2>
                         <p className="text-gray-500 mt-1">Kelola tarif pengiriman per kurir dan rute</p>
                     </div>
                     {isAdmin && (
                         <button
                             onClick={() => openModal()}
                             className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
-
                         >
                             + Tambah Tarif
                         </button>
@@ -271,6 +314,7 @@ function Rates() {
                                     <label className="block text-gray-700 mb-2">Harga per Kg *</label>
                                     <input
                                         type="number"
+                                        step="500"
                                         value={formData.price_per_kg}
                                         onChange={(e) => setFormData({ ...formData, price_per_kg: e.target.value })}
                                         className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"

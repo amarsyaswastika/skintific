@@ -82,22 +82,27 @@ class RateController {
         });
     }
 
-    // POST calculate
+    // POST calculate (DENGAN service_type)
     calculate(req, res) {
         const validationError = validateCalculatePrice(req.body);
         if (validationError) return errorResponse(res, validationError, 400);
 
-        const { courier_id, origin, destination, weight } = req.body;
+        const { courier_id, origin, destination, service_type, weight } = req.body;
 
-        RateModel.calculatePrice(courier_id, origin, destination, weight, (err, totalPrice) => {
+        // Validasi service_type
+        if (!service_type) {
+            return errorResponse(res, "Service type wajib diisi", 400);
+        }
+
+        RateModel.calculatePrice(courier_id, origin, destination, service_type, weight, (err, totalPrice) => {
             if (err) return errorResponse(res, err, 500, "Gagal menghitung harga");
             if (totalPrice === null) {
-                return errorResponse(res, "Tarif tidak ditemukan untuk rute tersebut", 404);
+                return errorResponse(res, "Tarif tidak ditemukan untuk rute dan layanan tersebut", 404);
             }
 
             return successResponse(
                 res,
-                { courier_id, origin, destination, weight, total_price: totalPrice },
+                { courier_id, origin, destination, service_type, weight, total_price: totalPrice },
                 "Harga berhasil dihitung"
             );
         });
