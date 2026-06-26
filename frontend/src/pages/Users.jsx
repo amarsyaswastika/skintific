@@ -17,12 +17,24 @@ function Users() {
     password: "",
     phone: "",
     address: "",
-    role: "staff", // default staff (bukan customer)
+    role: "staff",
   });
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
   const isAdmin = currentUser.role === "admin";
+
+  // 🔔 FUNGSI KIRIM NOTIFIKASI
+  const sendNotification = (type, message) => {
+    const newNotif = { type, message };
+    localStorage.setItem("newNotification", JSON.stringify(newNotif));
+    window.dispatchEvent(
+      new StorageEvent("storage", {
+        key: "newNotification",
+        newValue: JSON.stringify(newNotif),
+      }),
+    );
+  };
 
   useEffect(() => {
     if (!token) {
@@ -84,6 +96,25 @@ function Users() {
       });
       const data = await response.json();
       if (data.success) {
+        // 🔔 KIRIM NOTIFIKASI TAMBAH/EDIT USER
+        const roleLabel =
+          formData.role === "admin"
+            ? "Admin"
+            : formData.role === "staff"
+              ? "Staff"
+              : "Kurir";
+        if (editingUser) {
+          sendNotification(
+            "user",
+            `User ${formData.name} (${roleLabel}) berhasil diupdate`,
+          );
+        } else {
+          sendNotification(
+            "user",
+            `User baru ditambahkan: ${formData.name} (${roleLabel})`,
+          );
+        }
+
         fetchUsers();
         setShowModal(false);
         setEditingUser(null);
@@ -119,6 +150,20 @@ function Users() {
         );
         const data = await response.json();
         if (data.success) {
+          // 🔔 KIRIM NOTIFIKASI HAPUS USER
+          const deletedUser = users.find((u) => u.id === id);
+          if (deletedUser) {
+            const roleLabel =
+              deletedUser.role === "admin"
+                ? "Admin"
+                : deletedUser.role === "staff"
+                  ? "Staff"
+                  : "Kurir";
+            sendNotification(
+              "user",
+              `User ${deletedUser.name} (${roleLabel}) berhasil dihapus`,
+            );
+          }
           fetchUsers();
           alert("User berhasil dihapus");
         } else {
@@ -146,6 +191,16 @@ function Users() {
       );
       const data = await response.json();
       if (data.success) {
+        // 🔔 KIRIM NOTIFIKASI UPDATE ROLE
+        const updatedUser = users.find((u) => u.id === id);
+        if (updatedUser) {
+          const roleLabel =
+            role === "admin" ? "Admin" : role === "staff" ? "Staff" : "Kurir";
+          sendNotification(
+            "user",
+            `Role user ${updatedUser.name} diubah menjadi ${roleLabel}`,
+          );
+        }
         fetchUsers();
         alert("Role berhasil diupdate");
       } else {
@@ -186,12 +241,6 @@ function Users() {
     admin: "bg-purple-100 text-purple-800",
     staff: "bg-blue-100 text-blue-800",
     courier: "bg-orange-100 text-orange-800",
-  };
-
-  const roleLabels = {
-    admin: "Admin",
-    staff: "Staff",
-    courier: "Kurir",
   };
 
   if (!isAdmin) {
@@ -278,7 +327,6 @@ function Users() {
                 ) : (
                   users.map(
                     (user) =>
-                      // Filter: hanya tampilkan user dengan role admin, staff, courier
                       user.role !== "customer" && (
                         <tr key={user.id} className="hover:bg-gray-50">
                           <td className="px-6 py-4 text-sm font-medium text-gray-800">

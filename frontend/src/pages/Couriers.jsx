@@ -13,13 +13,25 @@ function Couriers() {
     vendor_name: "",
     phone: "",
   });
-const [logoFile, setLogoFile] = useState(null);
+  const [logoFile, setLogoFile] = useState(null);
   const navigate = useNavigate();
-
+  
   // Ambil token setiap kali dibutuhkan
   const getToken = () => localStorage.getItem("token");
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const isAdmin = user.role === "admin";
+  const isStaff = user.role === "staff";
+  const canManage = isAdmin || isStaff;
+
+  // FUNGSI KIRIM NOTIFIKASI
+  const sendNotification = (type, message) => {
+    const newNotif = { type, message };
+    localStorage.setItem("newNotification", JSON.stringify(newNotif));
+    window.dispatchEvent(new StorageEvent('storage', {
+      key: 'newNotification',
+      newValue: JSON.stringify(newNotif)
+    }));
+  };
 
   useEffect(() => {
     const token = getToken();
@@ -64,7 +76,7 @@ const [logoFile, setLogoFile] = useState(null);
       console.error("Error fetching couriers:", error);
     } finally {
       setLoading(false);
- }
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -93,6 +105,13 @@ const [logoFile, setLogoFile] = useState(null);
       });
       const data = await response.json();
       if (data.success) {
+        // KIRIM NOTIFIKASI TAMBAH/EDIT KURIR
+        if (editingCourier) {
+          sendNotification('courier', `Kurir ${formData.vendor_name} berhasil diupdate`);
+        } else {
+          sendNotification('courier', `Kurir baru ditambahkan: ${formData.vendor_name}`);
+        }
+        
         fetchCouriers();
         setShowModal(false);
         setEditingCourier(null);
@@ -122,7 +141,14 @@ const [logoFile, setLogoFile] = useState(null);
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await response.json();
-        if (data.success) fetchCouriers();
+        if (data.success) {
+          // KIRIM NOTIFIKASI HAPUS KURIR
+          const deletedCourier = couriers.find(c => c.id === id);
+          if (deletedCourier) {
+            sendNotification('courier', `Kurir ${deletedCourier.vendor_name} berhasil dihapus`);
+          }
+          fetchCouriers();
+        }
       } catch (error) {
         console.error("Error deleting courier:", error);
       }
@@ -160,15 +186,14 @@ const [logoFile, setLogoFile] = useState(null);
       <main className="ml-64 mt-16 p-6">
         <div className="mb-6 flex justify-between items-center">
           <div>
-            <h2 className="text-2xl font-bold text-gray-800">Manajemen Kurir</h2>
             <p className="text-gray-500 mt-1">Kelola data kurir dan mitra pengiriman</p>
           </div>
-          {isAdmin && (
+          {canManage && (
             <button
               onClick={() => openModal()}
               className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
             >
-  + Tambah Kurir
+              + Tambah Kurir
             </button>
           )}
         </div>
@@ -199,7 +224,7 @@ const [logoFile, setLogoFile] = useState(null);
                     {courier.phone && <p className="text-sm text-gray-500 mt-1">📞 {courier.phone}</p>}
                   </div>
                 </div>
-                {isAdmin && (
+                {canManage && (
                   <div className="flex gap-2 mt-4 pt-3 border-t border-gray-100">
                     <button
                       onClick={() => openModal(courier)}
@@ -207,12 +232,14 @@ const [logoFile, setLogoFile] = useState(null);
                     >
                       Edit
                     </button>
-                    <button
-                      onClick={() => handleDelete(courier.id)}
-                      className="flex-1 bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition text-sm"
-                    >
-                      Hapus
-                    </button>
+                    {isAdmin && (
+                      <button
+                        onClick={() => handleDelete(courier.id)}
+                        className="flex-1 bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition text-sm"
+                      >
+                        Hapus
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
@@ -257,7 +284,7 @@ const [logoFile, setLogoFile] = useState(null);
               </div>
               <div className="flex gap-3">
                 <button type="button" onClick={() => setShowModal(false)} className="flex-1 bg-gray-300 py-2 rounded-lg hover:bg-gray-400 transition">
- Batal
+                  Batal
                 </button>
                 <button type="submit" className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">
                   Simpan

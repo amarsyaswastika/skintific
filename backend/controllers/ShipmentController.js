@@ -79,8 +79,10 @@ class ShipmentController {
       
       results.forEach(row => {
         const monthIndex = row.month - 1;
-        monthlyShipments[monthIndex] = row.total;
-        monthlyDeliveries[monthIndex] = row.delivered;
+        if (monthIndex >= 0 && monthIndex < 12) {
+          monthlyShipments[monthIndex] = row.total || 0;
+          monthlyDeliveries[monthIndex] = row.delivered || 0;
+        }
       });
       
       successResponse(res, {
@@ -220,7 +222,7 @@ class ShipmentController {
     });
   }
 
-  //  PUT update shipment (DIPERBAIKI - tanpa tracking_number)
+  // PUT update shipment (DIPERBAIKI - tanpa tracking_number)
   update(req, res) {
     const idError = validateId(req.params.id);
     if (idError) return errorResponse(res, idError, 400, idError);
