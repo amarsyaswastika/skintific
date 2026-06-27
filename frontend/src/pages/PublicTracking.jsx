@@ -453,3 +453,278 @@ function Tracking() {
 }
 
 export default Tracking;
+import { useState } from "react";
+import { 
+  HiOutlineClock, 
+  HiOutlineTruck, 
+  HiOutlineCheckCircle,
+  HiOutlineSearch,
+  HiOutlineMail,
+  HiOutlinePhone
+} from "react-icons/hi";
+import { FaBoxOpen } from "react-icons/fa";
+import { formatDateTime, formatCurrency, getStatusText, getStatusBadgeClass } from "../utils/format";
+import logoBackground from "../assets/bg-tracking.png";
+import logoSwift from "../assets/logo-swifttrack.png";
+
+function PublicTracking() {
+  const [trackingNumber, setTrackingNumber] = useState("");
+  const [shipment, setShipment] = useState(null);
+  const [timeline, setTimeline] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [searched, setSearched] = useState(false);
+
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    
+    if (!trackingNumber.trim()) {
+      setError("Masukkan nomor tracking");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+    setShipment(null);
+    setTimeline([]);
+    setSearched(true);
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/tracking/public/${trackingNumber}`);
+      const data = await response.json();
+
+      if (data.success) {
+        setShipment(data.data.shipment);
+        setTimeline(data.data.timeline || []);
+      } else {
+        setError(data.message || "Nomor tracking tidak ditemukan");
+      }
+    } catch (err) {
+      setError("Terjadi kesalahan, coba lagi nanti");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getStatusIcon = (status) => {
+    const iconClass = "w-5 h-5";
+    const iconMap = {
+      pending: <HiOutlineClock className={`${iconClass} text-yellow-500`} />,
+      "in-transit": <HiOutlineTruck className={`${iconClass} text-blue-500`} />,
+      delivered: <HiOutlineCheckCircle className={`${iconClass} text-green-500`} />,
+    };
+    return iconMap[status] || <FaBoxOpen className={`${iconClass} text-gray-500`} />;
+  };
+
+  return (
+    <div 
+      className="min-h-screen flex flex-col bg-cover bg-center bg-no-repeat"
+      style={{ backgroundImage: `url(${logoBackground})` }}
+    >
+      <div className="flex-1 flex flex-col bg-black/30 backdrop-blur-[2px]">
+        
+        {/* Header */}
+        <header className="pt-12 pb-4">
+          <div className="container mx-auto px-4 text-center">
+            <img
+              src={logoSwift}
+              alt="SwiftTrack Logo"
+              className="w-65 h-40 mx-auto object-contain"
+            />
+            <p className="text-white/90 text-lg drop-shadow-md">Lacak Pengiriman Paket Anda</p>
+          </div>
+        </header>
+
+        <main className="flex-1 container mx-auto px-4 py-8 max-w-3xl">
+          {/* Form Pencarian */}
+          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg p-6 mb-6">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4 text-center flex items-center justify-center gap-2">
+              Lacak Paket
+            </h2>
+            <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3">
+              <input
+                type="text"
+                value={trackingNumber}
+                onChange={(e) => setTrackingNumber(e.target.value)}
+                placeholder="Masukkan nomor resi..."
+                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              />
+              <button
+                type="submit"
+                disabled={loading}
+                className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition disabled:opacity-50 font-medium flex items-center justify-center gap-2"
+              >
+                {loading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Mencari...
+                  </>
+                ) : (
+                  <>
+                    <HiOutlineSearch className="w-4 h-4" />
+                    Lacak
+                  </>
+                )}
+              </button>
+            </form>
+          </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="bg-red-50/90 border border-red-200 text-red-600 px-4 py-3 rounded-lg mb-6 flex items-center gap-2">
+              <HiOutlineClock className="w-5 h-5" />
+              {error}
+            </div>
+          )}
+
+          {/* Hasil Pencarian */}
+          {searched && !loading && (
+            <>
+              {shipment ? (
+                <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg overflow-hidden">
+                  {/* Informasi Pengiriman */}
+                  <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-white">
+                    <div className="text-center mb-4">
+                      <span className="text-xs text-gray-500">Status Pengiriman</span>
+                      <div className="mt-1">
+                        <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${getStatusBadgeClass(shipment.status)}`}>
+                          {getStatusText(shipment.status)}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="text-center">
+                        <p className="text-xs text-gray-500">Nomor Resi</p>
+                        <p className="font-mono font-semibold text-gray-800 text-sm">{shipment.tracking_number}</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-xs text-gray-500">Total Biaya</p>
+                        <p className="font-semibold text-gray-800">{formatCurrency(shipment.total_cost)}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Informasi Detail Pengiriman */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-6 border-b border-gray-100">
+                    <div>
+                      <p className="text-xs text-gray-500">Pengirim</p>
+                      <p className="font-medium text-gray-800">{shipment.sender_name}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">Penerima</p>
+                      <p className="font-medium text-gray-800">{shipment.receiver_name}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">Tujuan</p>
+                      <p className="font-medium text-gray-800">{shipment.destination || '-'}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">Kurir</p>
+                      <p className="font-medium text-gray-800">{shipment.courier_name || '-'}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">Layanan</p>
+                      <p className="font-medium text-gray-800">{shipment.service_type || '-'}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">Berat</p>
+                      <p className="font-medium text-gray-800">{shipment.weight || '-'} kg</p>
+                    </div>
+                    {shipment.item_description && (
+                      <div className="col-span-2">
+                        <p className="text-xs text-gray-500">Deskripsi Barang</p>
+                        <p className="font-medium text-gray-800">{shipment.item_description}</p>
+                      </div>
+                    )}
+                    {shipment.receiver_address && (
+                      <div className="col-span-2">
+                        <p className="text-xs text-gray-500">Alamat Penerima</p>
+                        <p className="font-medium text-gray-800">{shipment.receiver_address}</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Timeline Tracking */}
+                  <div className="p-6">
+                    <h3 className="font-semibold text-gray-800 mb-4">Riwayat Perjalanan</h3>
+                    
+                    {timeline.length === 0 ? (
+                      <div className="text-center py-8 text-gray-500">
+                        Belum ada riwayat tracking
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {timeline.map((item, index) => (
+                          <div key={item.id} className="flex gap-4">
+                            <div className="relative">
+                              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                                index === timeline.length - 1 ? "bg-blue-100" : "bg-gray-100"
+                              }`}>
+                                {getStatusIcon(item.status)}
+                              </div>
+                              {index < timeline.length - 1 && (
+                                <div className="absolute left-5 top-10 h-full w-0.5 bg-gray-300"></div>
+                              )}
+                            </div>
+                            <div className="flex-1 pb-6">
+                              <p className="font-medium text-gray-800">
+                                {getStatusText(item.status)}
+                              </p>
+                              {item.location && (
+                                <p className="text-sm text-gray-500 mt-1">
+                                  Lokasi: {item.location}
+                                </p>
+                              )}
+                              {item.description && (
+                                <p className="text-sm text-gray-500">{item.description}</p>
+                              )}
+                              <p className="text-xs text-gray-400 mt-1">
+                                {formatDateTime(item.updated_at)}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Footer Card */}
+                  <div className="bg-gray-50 px-6 py-4 text-center text-xs text-gray-500 flex items-center justify-center gap-4">
+                    <span>© 2026 SwiftTrack</span>
+                    <span>•</span>
+                    <span>Layanan tracking pengiriman paket</span>
+                  </div>
+                </div>
+              ) : (
+                !error && (
+                  <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg p-8 text-center">
+                    <p className="text-gray-500">Masukkan nomor resi untuk melacak paket Anda</p>
+                  </div>
+                )
+              )}
+            </>
+          )}
+        </main>
+
+        {/* Footer */}
+        <footer className="bg-gray-800/80 text-white py-6 text-center">
+          <div className="container mx-auto px-4">
+            <div className="flex justify-center items-center gap-4 mb-3">
+              <HiOutlineMail className="w-4 h-4 text-gray-400" />
+              <span className="text-sm">support@swifttrack.com</span>
+              <span className="text-gray-600">|</span>
+              <HiOutlinePhone className="w-4 h-4 text-gray-400" />
+              <span className="text-sm">1500-123</span>
+            </div>
+            <p className="text-sm">SwiftTrack - Sistem Tracking Pengiriman Paket</p>
+            <p className="text-xs text-gray-400 mt-1">© 2026 SwiftTrack. All rights reserved.</p>
+          </div>
+        </footer>
+
+      </div>
+    </div>
+  );
+}
+
+export default PublicTracking;
