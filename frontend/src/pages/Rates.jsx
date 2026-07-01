@@ -20,12 +20,23 @@ function Rates() {
     });
     const navigate = useNavigate();
     
-    // Buat fungsi untuk ambil token fresh
     const getToken = () => localStorage.getItem("token");
     const user = JSON.parse(localStorage.getItem("user") || "{}");
     const isAdmin = user.role === "admin";
     const isStaff = user.role === "staff";
     const canView = isAdmin || isStaff;
+
+    // 🔥 Fungsi untuk mendapatkan warna badge berdasarkan jenis layanan
+    const getServiceTypeBadgeClass = (serviceType) => {
+        const serviceMap = {
+            "Reguler": "bg-blue-100 text-blue-800",
+            "Express": "bg-green-100 text-green-800",
+            "Same Day": "bg-purple-100 text-purple-800",
+            "Cargo": "bg-orange-100 text-orange-800",
+            "Ekonomis": "bg-gray-100 text-gray-800",
+        };
+        return serviceMap[serviceType] || "bg-gray-100 text-gray-800";
+    };
 
     useEffect(() => {
         const token = getToken();
@@ -38,7 +49,7 @@ function Rates() {
     }, [navigate]);
 
     const fetchRates = async () => {
-        const token = getToken(); // Ambil token fresh setiap kali
+        const token = getToken();
         if (!token) return;
 
         try {
@@ -61,7 +72,7 @@ function Rates() {
     };
 
     const fetchCouriers = async () => {
-        const token = getToken(); // Ambil token fresh setiap kali
+        const token = getToken();
         if (!token) return;
 
         try {
@@ -81,7 +92,7 @@ function Rates() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const token = getToken(); // Ambil token fresh
+        const token = getToken();
         if (!token) return;
 
         try {
@@ -121,7 +132,7 @@ function Rates() {
 
     const handleDelete = async (id) => {
         if (!window.confirm("Yakin ingin menghapus tarif ini?")) return;
-        const token = getToken(); // Ambil token fresh
+        const token = getToken();
         if (!token) return;
 
         try {
@@ -163,7 +174,6 @@ function Rates() {
         return courier?.vendor_name || "-";
     };
 
-    // Jika bukan admin atau staff, redirect ke dashboard
     if (!canView && !loading) {
         navigate("/dashboard");
         return null;
@@ -225,7 +235,8 @@ function Rates() {
                                             <td className="px-6 py-4 text-sm text-gray-600">{rate.origin}</td>
                                             <td className="px-6 py-4 text-sm text-gray-600">{rate.destination}</td>
                                             <td className="px-6 py-4">
-                                                <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                                                {/* 🔥 BADGE LAYANAN DENGAN WARNA BERBEDA */}
+                                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getServiceTypeBadgeClass(rate.service_type)}`}>
                                                     {rate.service_type}
                                                 </span>
                                             </td>
