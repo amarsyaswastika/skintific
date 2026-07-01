@@ -271,7 +271,6 @@ function Tracking() {
       
       <main className="ml-64 mt-16 p-6">
         <div className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">Tracking Pengiriman</h2>
           <p className="text-gray-500 mt-1">Pantau progress pengiriman semua paket</p>
         </div>
 

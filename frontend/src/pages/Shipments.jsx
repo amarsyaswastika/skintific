@@ -8,6 +8,7 @@ import { formatCurrency, getStatusBadgeClass, getStatusText } from "../utils/for
 function Shipments() {
   const [shipments, setShipments] = useState([]);
   const [couriers, setCouriers] = useState([]);
+  const [rates, setRates] = useState([]);
   const [filterStatus, setFilterStatus] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
@@ -54,6 +55,7 @@ function Shipments() {
     }
     fetchPengiriman();
     fetchCouriers();
+    fetchRates();
   }, [token, navigate]);
 
   const fetchPengiriman = async () => {
@@ -80,6 +82,27 @@ function Shipments() {
     } catch (error) {
       console.error("Error fetching couriers:", error);
     }
+  };
+
+  const fetchRates = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/rates`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+      if (data.success) setRates(data.data);
+    } catch (error) {
+      console.error("Error fetching rates:", error);
+    }
+  };
+
+  // Jenis layanan yang tersedia untuk kurir yang sedang dipilih di form
+  const getAvailableServiceTypes = (courierId) => {
+    if (!courierId) return [];
+    const types = rates
+      .filter((r) => String(r.courier_id) === String(courierId))
+      .map((r) => r.service_type);
+    return [...new Set(types)];
   };
 
   useEffect(() => {
@@ -703,7 +726,15 @@ function Shipments() {
                 <label className="block text-gray-700 mb-2">Kurir *</label>
                 <select
                   value={formData.courier_id}
-                  onChange={(e) => setFormData({ ...formData, courier_id: e.target.value })}
+                  onChange={(e) => {
+                    const newCourierId = e.target.value;
+                    const availableTypes = getAvailableServiceTypes(newCourierId);
+                    setFormData({
+                      ...formData,
+                      courier_id: newCourierId,
+                      service_type: availableTypes[0] || "",
+                    });
+                  }}
                   className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 >
@@ -762,9 +793,17 @@ function Shipments() {
                     onChange={(e) => setFormData({ ...formData, service_type: e.target.value })}
                     className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
+                    disabled={!formData.courier_id}
                   >
-                    <option value="Reguler">Reguler</option>
-                    <option value="Express">Express</option>
+                    {!formData.courier_id ? (
+                      <option value="">Pilih kurir dahulu</option>
+                    ) : getAvailableServiceTypes(formData.courier_id).length === 0 ? (
+                      <option value="">Tidak ada layanan untuk kurir ini</option>
+                    ) : (
+                      getAvailableServiceTypes(formData.courier_id).map((type) => (
+                        <option key={type} value={type}>{type}</option>
+                      ))
+                    )}
                   </select>
                 </div>
                 <div>
@@ -831,7 +870,17 @@ function Shipments() {
                 <label className="block text-gray-700 mb-2">Kurir *</label>
                 <select
                   value={formData.courier_id}
-                  onChange={(e) => setFormData({ ...formData, courier_id: e.target.value })}
+                  onChange={(e) => {
+                    const newCourierId = e.target.value;
+                    const availableTypes = getAvailableServiceTypes(newCourierId);
+                    setFormData({
+                      ...formData,
+                      courier_id: newCourierId,
+                      service_type: availableTypes.includes(formData.service_type)
+                        ? formData.service_type
+                        : availableTypes[0] || "",
+                    });
+                  }}
                   className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 >
@@ -889,9 +938,17 @@ function Shipments() {
                     onChange={(e) => setFormData({ ...formData, service_type: e.target.value })}
                     className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
+                    disabled={!formData.courier_id}
                   >
-                    <option value="Reguler">Reguler</option>
-                    <option value="Express">Express</option>
+                    {!formData.courier_id ? (
+                      <option value="">Pilih kurir dahulu</option>
+                    ) : getAvailableServiceTypes(formData.courier_id).length === 0 ? (
+                      <option value="">Tidak ada layanan untuk kurir ini</option>
+                    ) : (
+                      getAvailableServiceTypes(formData.courier_id).map((type) => (
+                        <option key={type} value={type}>{type}</option>
+                      ))
+                    )}
                   </select>
                 </div>
                 <div>
