@@ -63,6 +63,9 @@ function Tracking() {
     }
   }, [shipments]);
 
+  // FIX: fetchShipments sekarang me-return data terbaru (data.data),
+  // supaya bisa langsung dipakai untuk sinkronkan selectedShipment
+  // tanpa harus nunggu state `shipments` ke-update (yang async & delayed).
   const fetchShipments = async () => {
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/shipments`, {
@@ -71,9 +74,12 @@ function Tracking() {
       const data = await response.json();
       if (data.success) {
         setShipments(data.data);
+        return data.data;
       }
+      return null;
     } catch (error) {
       console.error("Error fetching shipments:", error);
+      return null;
     } finally {
       setLoading(false);
     }
@@ -100,6 +106,19 @@ function Tracking() {
       if (data.success) setTimeline(data.data);
     } catch (error) {
       console.error("Error fetching timeline:", error);
+    }
+  };
+
+  // FIX: helper untuk refresh daftar shipment DAN menyinkronkan
+  // selectedShipment (yang dipakai buat badge "Status Saat Ini" di modal)
+  // dengan data terbaru dari server, berdasarkan id shipment yang sedang dibuka.
+  const syncSelectedShipmentStatus = async (shipmentId) => {
+    const updatedShipments = await fetchShipments();
+    if (updatedShipments) {
+      const updated = updatedShipments.find((s) => s.id === shipmentId);
+      if (updated) {
+        setSelectedShipment(updated);
+      }
     }
   };
 
@@ -145,7 +164,7 @@ function Tracking() {
         
         setMessage({ type: "success", text: "Tracking berhasil ditambahkan!" });
         await fetchTimeline(selectedShipment.id);
-        await fetchShipments();
+        await syncSelectedShipmentStatus(selectedShipment.id);
         setTrackingForm({ status: "", location: "", description: "" });
         setShowAddTracking(false);
         setTimeout(() => setMessage({ type: "", text: "" }), 3000);
@@ -194,6 +213,11 @@ function Tracking() {
         
         setMessage({ type: "success", text: "Tracking berhasil diupdate!" });
         await fetchTimeline(selectedShipment.id);
+        // FIX: sebelumnya cuma fetchTimeline, jadi badge "Status Saat Ini" di modal
+        // (yang datanya dari selectedShipment.status, bukan dari timeline) gak ikut berubah.
+        // Sekarang kita refresh daftar shipment dari server (backend sudah recalculate
+        // status shipment berdasarkan entry tracking terbaru) dan sinkronkan ke selectedShipment.
+        await syncSelectedShipmentStatus(selectedShipment.id);
         setShowEditTracking(false);
         setEditingTracking(null);
         setTrackingForm({ status: "", location: "", description: "" });
@@ -225,6 +249,11 @@ function Tracking() {
           
           setMessage({ type: "success", text: "Tracking berhasil dihapus!" });
           await fetchTimeline(selectedShipment.id);
+          // FIX: sama seperti update — setelah hapus, backend sudah recalculate
+          // status shipment ke entry tracking terakhir yang tersisa (atau "pending"
+          // kalau timeline-nya kosong). Refresh & sinkronkan ke selectedShipment
+          // supaya badge status di modal langsung berubah.
+          await syncSelectedShipmentStatus(selectedShipment.id);
           setTimeout(() => setMessage({ type: "", text: "" }), 3000);
         } else {
           setMessage({ type: "error", text: data.message || "Gagal hapus tracking" });
